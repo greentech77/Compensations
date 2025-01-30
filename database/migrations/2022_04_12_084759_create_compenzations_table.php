@@ -18,13 +18,13 @@ class CreateCompenzationsTable extends Migration
             $table->char('name', 50);
             $table->integer('year', false, true)->length(4);
             $table->unsignedDecimal('amount', 10, 4);
-            $table->integer('vat', false, true)->length(2);
-            $table->unsignedDecimal('commission', 10, 4);
-            $table->timestamp('date_finished');
-            $table->timestamp('date_payed');
-            $table->boolean('storno');
-            $table->boolean('finished');
-            $table->boolean('with_ddv');
+            $table->integer('vat', false, true)->length(2)->default(22);
+            $table->date('date');
+            $table->date('date_finished');
+            $table->date('date_payed');
+            $table->boolean('storno')->nullable();
+            $table->boolean('finished')->default(false);
+            $table->boolean('with_ddv')->nullable();
             $table->timestamps();
         });
     }

@@ -15,7 +15,13 @@
                         Naziv kompenzacije
                     </th>
                     <th scope="col" class="pl-6 py-3 bg-blue">
+                        Datum
+                    </th>
+                    <th scope="col" class="pl-6 py-3 bg-blue">
                         Znesek
+                    </th>
+                    <th scope="col" class="pl-6 py-3 bg-blue">
+                        Diskont
                     </th>
                     <th scope="col" class="pl-6 py-3 bg-blue">
                         Provizija
@@ -28,10 +34,16 @@
                         <strong>{{compenzation.name}}</strong>
                     </td>
                     <td class="pl-6 py-4 whitespace-nowrap">
-                        {{compenzation.amount}}
+                        {{formatDate(compenzation.date)}}
                     </td>
                     <td class="pl-6 py-4 whitespace-nowrap">
-                        {{compenzation.commission}}
+                        {{formatCurrency(compenzation.amount)}}
+                    </td>
+                    <td class="pl-6 py-4 whitespace-nowrap">
+                        {{formatPercentage(compenzation.implementation_agreement.discount)}}
+                    </td>
+                    <td class="pl-6 py-4 whitespace-nowrap">
+                        {{formatPercentage(compenzation.realization_agreement.commission)}}
                     </td>
                 </tr>
             </tbody>
@@ -64,6 +76,27 @@ export default {
     },
 
     methods: {
+        formatDate(dateString) {
+            const date = new Date(dateString); // Parse the date string
+            const day = String(date.getDate()).padStart(2, '0'); // Ensure 2-digit day
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure 2-digit month
+            const year = date.getFullYear(); // Get the year
+            return `${day}.${month}.${year}`; // Format in DD.MM.YYYY
+        },
+        formatCurrency(value) {
+            // Convert to locale-specific format with `,` as the decimal separator and `.` as thousands separator
+            return new Intl.NumberFormat('sl-SI', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value) + ' €'; // Add the Euro symbol at the end
+        },
+        formatPercentage(value) {
+          if (value == null || value === '' || isNaN(Number(value))) return '';
+          return `${Number(value).toLocaleString('sl-SI', { 
+              minimumFractionDigits: 2, 
+              maximumFractionDigits: 2 
+          })} %`
+        },
          viewCompenzation(compenzation) {
             this.$inertia.visit(this.route('compenzations.compenzation', {
                 id: compenzation.id

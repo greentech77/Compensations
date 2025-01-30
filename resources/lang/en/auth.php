@@ -13,8 +13,10 @@ return [
     |
     */
 
-    'failed' => 'These credentials do not match our records.',
-    'password' => 'The provided password is incorrect.',
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'failed' => 'Login details are incorrect',
+    'password' => 'The password you have entered is incorrect',
+    'throttle' => 'Too many invalid logins. Please try again in :seconds seconds.',
+    'user-disabled' => "The user is locked",
+    'user-not-verified' => "The user is not yet confirmed"
 
 ];

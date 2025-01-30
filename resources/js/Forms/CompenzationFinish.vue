@@ -6,6 +6,9 @@
             <h2 class="text-lg font-medium mb-4">Podatki o kompenzaciji</h2>
             <p class="mb-2"><strong>Datum: </strong>{{dateFormat(form.compenzationData.compenzationDate)}}</p>
             <p class="mb-2"><strong>Znesek: </strong>{{form.compenzationData.compenzationAmount.toLocaleString('sl-SI', {style: 'currency', currency: 'EUR', currencyDisplay: 'code'})}}</p>
+            <p class="mb-2"><strong>Diskont: </strong>{{percentFormat(form.compenzationData.compenzationDiscount)}}</p>
+            <p class="mb-2"><strong>Z DDV: </strong>{{booleanFormat(form.compenzationData.discountWithVat)}}</p>
+            <p class="mb-2"><strong>Provizija: </strong>{{percentFormat(form.compenzationData.compenzationCommission)}}</p>
         </section>
 
         <section class="bg-white rounded-md p-6 filter drop-shadow">
@@ -30,7 +33,7 @@
 import Button from '@/Components/Button.vue'
 import { stepperEventsMixin } from './steppedMixins'
 import { fakeRegisterFinishMixin } from '@/mixins/faker'
-import { dateFormat, booleanFormat } from '@/mixins/filters'
+import { dateFormat, booleanFormat, percentFormat } from '@/mixins/filters'
 
 export default {
 
@@ -58,11 +61,24 @@ export default {
     methods: {
         onSubmit() {
             this.form.post(this.route('compenzation.add'), {
-          
+                /*onSuccess: () => {
+                    this.onComplete()
+                },*/
+                preserveScroll: true,
+                onError: errors => {
+                    for (const [key, value] of Object.entries(errors)) {
+                        const splitKey = key.split('.')
+                        const root = splitKey.shift()
+                        const domain = splitKey.join('.')
+                        this.forms[root].errors[domain] = value
+                        this.forms[root].hasErrors = true
+                    }
+                }
             })
         },
         dateFormat,
-        booleanFormat
+        booleanFormat,
+        percentFormat
     }
 
 }

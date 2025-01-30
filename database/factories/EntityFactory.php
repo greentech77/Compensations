@@ -23,6 +23,8 @@ class EntityFactory extends Factory
             'vat_num'           => $this->faker->numerify('########'),
             'registration_num'  => $this->faker->numerify('##########'),
             'bank_account'      => $this->faker->bankAccountNumber(),
+            'bank_bic'          => $this->faker->numerify('BIC########'),
+            'bank_name'         => $this->faker->name(),
             'email'             => $this->faker->unique()->safeEmail(),
             'fax'               => $this->faker->numerify('########'),
             'mobile'            => $this->faker->numerify('########'),

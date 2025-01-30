@@ -39,11 +39,11 @@ use Inertia\Inertia;
 //Route::get('/dashboard', [UserController::class, 'getDashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 //Route::get('/entities', [UserController::class, 'getEntities'])->middleware(['auth', 'verified'])->name('entities');
 
-Route::middleware(['auth:web'])->group(function () {
-	Route::get('/', function () {
-	        return redirect()->route('dashboard');
-	    })->name('home');
 
+Route::middleware(['auth:web'])->group(function () {
+
+Route::get('/', [UserController::class, 'getDashboard'])->name('home');
+//Route::get('/dashboard', [UserController::class, 'getEntities'])->name('dashboard');
 Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard');
 Route::get('/entities', [UserController::class, 'getEntities'])->name('entities');
 Route::get('/entities/{id}', [UserController::class, 'getEntity'])->name('entities.entity');
@@ -52,6 +52,7 @@ Route::get('/entities/entity/new', [UserController::class, 'registerEntity'])->n
 
 Route::get('/compenzations', [CompenzationController::class, 'getCompenzations'])->name('compenzations');
 Route::get('/compenzations/{id}', [CompenzationController::class, 'getCompenzation'])->name('compenzations.compenzation');
+Route::patch('/compenzations/{id}', [CompenzationController::class, 'patchCompenzation'])->name('compenzations.compenzation.patch');
 Route::get('/compenzations/compenzation/new', [CompenzationController::class, 'addCompenzation'])->name('compenzations.compenzation.new');
 
 /**

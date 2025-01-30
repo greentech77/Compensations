@@ -70,6 +70,18 @@ const fakeBankAccount = function(form) {
     form.address = fakeAddressString()
 }
 
+// Function to generate a single entity
+const generateEntity = () => ({
+    id: faker.string.uuid(),
+    name: faker.company.name()
+  });
+
+const formatPercent = (value) => {
+    return value.toFixed(2).replace('.', ',') + ' %';
+};
+
+  
+
 function validTaxNumber() {
     // veljavna davčna številka
     let taxNumber = []
@@ -130,8 +142,55 @@ const fakeRegisterFinishMixin = (() => {
     }, fakeMixin)
 })()
 
+const fakeCompensationDataMixin = (() => {
+    return merge({
+      methods: {
+        fakeData(form) {
+          // Ensure form is the correct object
+          //form = form || this.compenzationDataForm;
+          form = form || this.form
+            bypassConditions(form, form => {
+
+                // Generate multiple entities (between 1-5)
+                const entitiesCount = faker.datatype.number({ min: 1, max: 5 });
+                const compenzationEntities = Array.from({ length: entitiesCount }, () => ({
+                    id: faker.datatype.uuid(),
+                    name: faker.company.companyName()
+                }));
+
+                console.log(entitiesCount);
+    
+                // Set form data
+                form.compenzationDate = faker.date.past();
+                form.compenzationAmount = faker.finance.amount(100, 10000);
+                form.compenzationEntities = compenzationEntities;
+
+                form.compenzationDiscount = Number(faker.finance.amount(1, 5));
+                form.discountWithVat = faker.datatype.boolean();
+                form.compenzationCommission = Number(faker.finance.amount(1, 5));
+                
+            })
+        }
+      }
+    }, fakeMixin)
+  })()
+
+  const fakeCompenzationFinishMixin = (() => {
+    return merge({
+        methods: {
+            fakeData() {
+                fakeCompensationDataMixin.methods.fakeData.call(this, this.forms.compenzationData)
+                this.form.compenzationData = this.forms.compenzationData.data()
+            }
+        }
+    }, fakeMixin)
+})()
+
+
 export { 
     fakeRegisterDataMixin,
     fakeRegisterFinishMixin,
+    fakeCompensationDataMixin,
+    fakeCompenzationFinishMixin,
     fakeMixin,
 };

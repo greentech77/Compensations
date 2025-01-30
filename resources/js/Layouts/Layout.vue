@@ -62,6 +62,8 @@
             </HamburgerMenu>
         </section>
 
+        <Modal/>
+
     </div>
 </template>
 
@@ -70,6 +72,7 @@ import { Link } from '@inertiajs/inertia-vue3'
 import { LocationMarkerIcon, PhoneIcon, PaperAirplaneIcon, HomeIcon, MenuIcon, AtSymbolIcon, UserAddIcon } from '@heroicons/vue/outline';
 import Button from '@/Components/Button.vue'
 import HamburgerMenu from '@/Components/HamburgerMenu.vue'
+import Modal from '@/Components/Modal.vue'
 import currentRoute from '@/mixins/currentRoute'
 
 export default {
@@ -84,7 +87,8 @@ export default {
         MenuIcon,
         HamburgerMenu,
         AtSymbolIcon,
-        UserAddIcon
+        UserAddIcon,
+        Modal
     },
 
     mixins: [ currentRoute ]

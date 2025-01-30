@@ -3,9 +3,8 @@
 namespace App\Services\Entities\Registration;
 
 use Carbon\Carbon;
-use App\Exceptions\BTNException;
 use Illuminate\Support\Facades\DB;
-use App\Exceptions\BTNModalException;
+use App\Exceptions\KompenzacijeModalException;
 use App\Models\Entity;
 
 
@@ -26,7 +25,7 @@ class Registration {
         // preveri, če že obstaja entiteta za to firmo
         if ($this->entityExists($entityData['vatNum']))
         {
-            throw new BTNModalException(__('modals.register.entity_exists'), 409);
+            throw new KompenzacijeModalException(__('modals.register.entity_exists'), 409);
         }
 
         $entity = DB::transaction(function() use ($entityData) 

@@ -62,6 +62,9 @@
         </div>
 
     </div>
+    
+    <Modal/>
+    <Toast/>
 
 </template>
 
@@ -72,6 +75,8 @@ import MainBlock from '@/Layouts/MainBlock.vue'
 import { ChevronRightIcon, HomeIcon, UserIcon, DocumentReportIcon, ChartPieIcon, OfficeBuildingIcon, CurrencyEuroIcon } from '@heroicons/vue/outline';
 import currentRoute from '@/mixins/currentRoute'
 import User from '@/Components/User.vue'
+import Modal from '@/Components/Modal.vue'
+import Toast from '@/Components/Toast.vue'
 
 export default {
 
@@ -88,7 +93,9 @@ export default {
         ChartPieIcon,
         OfficeBuildingIcon,
         CurrencyEuroIcon,
-        User
+        User,
+        Modal,
+        Toast
     },
 
     computed: {

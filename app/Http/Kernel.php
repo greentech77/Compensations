@@ -39,6 +39,9 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\KompenzacijeException::class,
+            \App\Http\Middleware\KompenzacijeModal::class, // mora biti za KompenzacijeException
+            \App\Http\Middleware\KompenzacijeToast::class
         ],
 
         'api' => [

@@ -75,6 +75,12 @@ class RegisterController extends Controller
      */
     public function postEntity(Request $request, Validation $validation, Registration $registration) {
 
+        // Ensure the user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+
         // manjka session data iz registration route
         /*if (session()->missing('registration')) {
             return redirect()->route('register');
@@ -90,6 +96,8 @@ class RegisterController extends Controller
 
         RegistrationEvent::dispatch($entity);
 
+        //dd(session()->all());
+
         session()->forget('registration');
 
         return redirect()->route('entities')->with([
@@ -101,7 +109,7 @@ class RegisterController extends Controller
                     'action' => [
                         // 'type' => 'redirect',
                         'type' => 'close',
-                        'url' => route('login')
+                        //'url' => route('login')
                     ],
                     'text' => __('modals.common.confirm')
                 ]]
@@ -118,7 +126,5 @@ class RegisterController extends Controller
         $request->validate($validation->entityData());
         return redirect()->back();
     }
-
-
 
 }

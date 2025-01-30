@@ -17,5 +17,9 @@
         "register": "Add new company",
         "login": "@:common.login",
         "home": "@:common.home"
-    }
+    },
+    "booleans": {
+        "true": "Yes",
+        "false": "No"
+    },
 }

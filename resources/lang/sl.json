@@ -12,7 +12,9 @@
         "pending": "V potrjevanju",
         "active": "Aktiven",
         "rejected": "Zavrnjen",
-        "select_entity": "Izberi stranko"
+        "select_entity": "Izberi stranko",
+        "cancel": "Prekliči",
+        "save": "Shrani"
     },
     "header": {
         "register": "Dodaj novo podjetje",
@@ -21,5 +23,9 @@
     },
     "form": {
         "select_entity": "Izberi stranko"
+    },
+    "booleans": {
+        "true": "Da",
+        "false": "Ne"
     }
 }

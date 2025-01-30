@@ -102,6 +102,8 @@ class Validation {
         $validation = array_merge([
             'compenzationDate' => ['required', 'string'],
             'compenzationAmount' => ['required'],
+            'compenzationDiscount' => ['required'],
+            'compenzationCommission' => ['required'],
         ], $this->compenzationEntities());
 
         return $this->prependKeys($prepend, $validation);

@@ -13,14 +13,16 @@ class CompenzationFactory extends Factory
      */
     public function definition()
     {
+        static $counter = 1;
+        $year = date('Y');
         return [
-            'name'              => $this->faker->numerify('Kompenzacija-####'),
-            'year'              => 2022,
+            'name'              => $this->faker->numerify('Kompenzacija-'. str_pad($counter++, 4, '0', STR_PAD_LEFT) .'/'.$year),
+            'year'              => 2024,
             'amount'            => $this->faker->randomFloat(4, 1000, 10000),
             'vat'               => 22,
-            'commission'        => $this->faker->randomFloat(4, 10, 1000),
-            'date_finished'     => $this->faker->date() . ' ' . $this->faker->time(),
-            'date_payed'        => $this->faker->date() . ' ' . $this->faker->time(),
+            'date'              => $this->faker->date(),
+            'date_finished'     => $this->faker->date(),
+            'date_payed'        => $this->faker->date(),
             'storno'            => false,
             'finished'          => false,
             'with_ddv'          => $this->faker->boolean(),

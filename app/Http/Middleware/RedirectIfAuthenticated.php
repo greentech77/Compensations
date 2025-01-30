@@ -21,8 +21,16 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
+        //dd($request->url());
+
+        //dd($guards);
+        //dd($request->route()->getName()); 
+        
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                /*if ($request->routeIs('compenzation.add')) {
+                    return $next($request);
+                }*/
                 return redirect(RouteServiceProvider::HOME);
             }
         }

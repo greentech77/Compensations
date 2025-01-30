@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
+use App\Exceptions\KompenzacijeException;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Response;
 
@@ -28,23 +28,40 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Response::macro('api', function ($value = null) {
-            if ($value == null) {
+            if ($value === null) {
                 return response('', 204);
             } else {
-                return response([
-                    'status' => 'success',
-                    'data' => $value
-                ]);
+                if ($value instanceof KompenzacijeException) {
+                    return response([
+                        'status' => 'error',
+                        'reason' => $value->getMessage()
+                    ]);
+                } else {
+                    return response([
+                        'status' => 'success',
+                        'data' => $value
+                    ]);
+                }
             }
         });
+
+        Response::macro('toastSuccess', function () {
+            return redirect()->back()->with([
+                'toast' => [
+                    'text' => 'Operacija uspešna!',
+                    'type' => 'success'
+                ]
+            ]);
+        });
+
         
-        Collection::macro('snakeCaseKeys', function () {
+        /*Collection::macro('snakeCaseKeys', function () {
             return $this->mapWithKeys(function($value, $key) {
                 return [
                     Str::snake($key) => $value
                 ];
             });
-        });
+        });*/
 
         Arr::macro('camelCaseKeys', function ($array) {
             foreach ($array as $key => $value) {

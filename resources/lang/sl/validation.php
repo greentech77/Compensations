@@ -174,7 +174,8 @@ return [
         'bankName' => 'naziv banke',
         'compenzationDate' => 'datum kompenzacije',
         'compenzationAmount' => 'znesek kompenzacije',
+        'compenzationDiscount' => 'diskont',
+        'compenzationCommission' => 'provizija',
         'compenzationEntities.*' => 'stranka',
-    ],
-
+    ]
 ];

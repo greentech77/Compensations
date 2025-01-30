@@ -2,14 +2,25 @@
     <form @submit.prevent="onSubmit" class="space-y-4">
       <section class="bg-white rounded-md p-6 filter drop-shadow space-y-4">
         <h2 class="text-lg font-medium">Osnovni podatki</h2>
-        <div>
-          <InputGroup v-model="form.compenzationDate" name="compenzationDate" label="Datum" :error="form.errors.compenzationDate" type="date" @change="form.clearErrors('compenzationDate')"/>
+        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
+          <InputGroup class="w-full md:w-1/2 flex-auto" v-model="form.compenzationDate" name="compenzationDate" label="Datum" :error="form.errors.compenzationDate" type="date" @change="form.clearErrors('compenzationDate')"/>
+          <InputGroup class="w-full md:w-1/2 flex-auto" type="currency" v-model="form.compenzationAmount" name="compenzationAmount" label="Znesek" :error="form.errors.compenzationAmount" @change="form.clearErrors('compenzationAmount')"/>
         </div>
-  
-        <div>
-          <InputGroup class="text-left flex-1" type="currency" v-model="form.compenzationAmount" name="compenzationAmount" label="Znesek" :error="form.errors.compenzationAmount" @change="form.clearErrors('compenzationAmount')"/>
-        </div>
-  
+
+
+        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap items-center">
+          <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.compenzationDiscount" label="Diskont" :error="form.errors.compenzationDiscount" @change="form.clearErrors('compenzationDiscount')" />
+          <div class="w-full md:w-1/3 flex-auto flex items-center">
+              <Checkbox 
+                  v-model="form.discountWithVat" 
+                  name="discountWithVat" 
+                  label="Z DDV" 
+                  class="flex items-center"
+              />
+          </div>
+          <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.compenzationCommission" label="Provizija" :error="form.errors.compenzationCommission" @change="form.clearErrors('compenzationCommission')" />
+      </div>
+
         <div class="flex justify-end space-x-4" v-for="(component, index) in components" :key="index">
           <InputGroup 
             class="w-full md:w-1/2 flex-auto text-left" 
@@ -47,15 +58,17 @@
   </template>
   
   <script>
+  import Checkbox from '@/Components/Checkbox.vue'
   import Button from '@/Components/Button.vue'
   import InputGroup from '@/Components/InputGroup.vue'
   import Label from '@/Components/Label.vue'
-  import { fakeRegisterDataMixin } from '@/mixins/faker'
+  import { fakeCompensationDataMixin } from '@/mixins/faker'
   import { stepperEventsMixin } from './steppedMixins'
   import addressMixin from '@/mixins/address'
   
   export default {
     components: {
+      Checkbox,
       Button,
       InputGroup,
       Label
@@ -63,7 +76,7 @@
     props: {
       form: Object,
     },
-    mixins: [stepperEventsMixin, fakeRegisterDataMixin, addressMixin],
+    mixins: [stepperEventsMixin, fakeCompensationDataMixin, addressMixin],
     data() {
       return {
         entitiesOptions: [],
@@ -82,9 +95,11 @@
         return {
           label: item.company_name,
           key: item.id,
-          default_value: ''
+          default_value: 1
         }
       });
+
+      console.log('Entity Options:', this.entitiesOptions);
 
       this.loadComponents();
     },
@@ -99,7 +114,10 @@
         const formData = {
                 compenzationDate: this.form.compenzationDate,
                 compenzationAmount: this.form.compenzationAmount,
+                compenzationDiscount: this.form.compenzationDiscount,
+                compenzationCommision: this.form.compenzationCommission,
                 compenzationEntities: this.form.compenzationEntities,
+                discountWithVat: this.form.discountWithVat,
 
                 // Include select field's value
                 //compenzationEntity: this.components.map(component => component.data.compenzationEntity.value)
@@ -124,7 +142,14 @@
          const errorField = `compenzationEntities.${index}`;
          delete this.form.errors[errorField];
       },
-    
+      formatPercentage(value) {
+          if (value == null || value === '' || isNaN(Number(value))) return '';
+          return `${Number(value).toLocaleString('sl-SI', { 
+              minimumFractionDigits: 2, 
+              maximumFractionDigits: 2 
+          })} %`
+      },
+          
     addComponent() {
 
     //const defaultEntity = this.entitiesOptions.length > 0 ? this.entitiesOptions[0].key : '';
