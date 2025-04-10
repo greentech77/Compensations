@@ -105,23 +105,22 @@ class CompenzationController extends Controller
     }
 
 
-    public function postCompenzation(Request $request, Validation $validation, CompenzationService $compenzation) 
+    public function postCompensation(Request $request, Validation $validation, CompensationService $compensationService) 
     {
-
         $input = $request->input();
-
-        $compenzation = $compenzation->addCompenzation($input);
-
-        AddCompenzationEvent::dispatch($compenzation);
-
+    
+        $compensation = $compensationService->addCompensation($input);
+    
+        AddCompensationEvent::dispatch($compensation);
+    
         //dd(session()->all());
-
-        session()->forget('compenzation');
-
-        return redirect()->route('compenzations')->with([
+    
+        session()->forget('compensation');
+    
+        return redirect()->route('compensations')->with([
             'modal' => [
-                'title' => __('modals.compenation.title'),
-                'content' => __('modals.compenation.success'),
+                'title' => __('modals.compensation.title'),
+                'content' => __('modals.compensation.success'),
                 'status' => 'success',
                 'actions' => [[
                     'action' => [
