@@ -14,8 +14,8 @@
         <section class="bg-white rounded-md p-6 filter drop-shadow">
             <h2 class="text-lg font-medium mb-4">Stranke</h2>
 
-            <p v-for="(entity, index) in form.compenzationData.compenzationEntities" :key="entity.key">
-                Stranka {{ index + 1 }}: {{ entity.label }}
+            <p v-for="(entity, index) in form.compenzationData.compenzationEntities" :key="entity.key || index">
+                Stranka {{ index + 1 }}: {{ entity.label || entity.name || entity }}
             </p>
 
         </section>
@@ -32,7 +32,7 @@
 <script>
 import Button from '@/Components/Button.vue'
 import { stepperEventsMixin } from './steppedMixins'
-import { fakeRegisterFinishMixin } from '@/mixins/faker'
+import { fakeCompenzationFinishMixin } from '@/mixins/faker'
 import { dateFormat, booleanFormat, percentFormat } from '@/mixins/filters'
 
 export default {
@@ -45,7 +45,7 @@ export default {
         forms: Object,
     },
 
-    mixins: [stepperEventsMixin, fakeRegisterFinishMixin],
+    mixins: [stepperEventsMixin, fakeCompenzationFinishMixin],
 
     data() {
         return {
@@ -61,9 +61,9 @@ export default {
     methods: {
         onSubmit() {
             this.form.post(this.route('compenzation.add'), {
-                /*onSuccess: () => {
+                onSuccess: () => {
                     this.onComplete()
-                },*/
+                },
                 preserveScroll: true,
                 onError: errors => {
                     for (const [key, value] of Object.entries(errors)) {

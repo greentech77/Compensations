@@ -73,7 +73,7 @@ export default {
                     component: markRaw(CompenzationData),
                     props: {
                         form: compenzationDataForm,
-                        entities: Object
+                        entities: this.entities
                     },
                     get valid() {
                         return this.props.form.wasSuccessful && !this.props.form.isDirty
