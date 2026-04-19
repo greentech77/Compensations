@@ -10,14 +10,31 @@ use App\Models\Entity;
 
 class EntityService {
 
-    public function entities() 
+    public function entities($search = null) 
     {
-        return Entity::paginate(5);
+        $query = Entity::query();
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('vat_num', 'like', "%{$search}%")
+                  ->orWhere('registration_num', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('post_town', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query->paginate(15)->withQueryString();
     }
 
     public function entity($id)
     {
-        $entity = Entity::find($id);
+        $entity = Entity::with([
+            'compenzations.proposal',
+            'compenzations.implementationAgreement',
+            'compenzations.realizationAgreement'
+        ])->find($id);
         
         return $entity;
     }

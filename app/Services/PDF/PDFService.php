@@ -16,20 +16,7 @@ class PDFService {
     public function generate($html, $overrides = []) {
 
         $mpdf = new Mpdf([
-            'fontDir' => [
-                storage_path('fonts')
-            ],
-            'fontdata' => [ 
-                'roboto' => [
-                    'R' => 'Roboto-Regular.ttf',
-                    'I' => 'Roboto-Italic.ttf',
-                    'L' => 'Roboto-Light.ttf',
-                    'LI' => 'Roboto-LightItalic.ttf',
-                    'B' => 'Roboto-Bold.ttf',
-                    'BI' => 'Roboto-BoldItalic.ttf',
-                ]
-            ],
-            'default_font' => 'roboto',
+            'default_font' => 'dejavusans',
             'margin_left' => 22,
             'margin_right' => 22,
             'margin_top' => 35,
@@ -40,7 +27,6 @@ class PDFService {
             ...$overrides
         ]);
 
-        $mpdf->AddFontDirectory(storage_path('fonts'));
         $mpdf->SetDisplayMode('fullpage');
 
         $mpdf->WriteHTML($html);

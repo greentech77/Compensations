@@ -75,6 +75,15 @@ Make sure you have the following installed:
 ## Contribution
 Feel free to submit issues and pull requests to improve the application.
 
+## Documentation
+
+📚 **Vsa dokumentacija je v `docs/` mapi:**
+
+- **[Glavni Napredek](docs/PROGRESS.md)** - Tracking napredka razvoja
+- **[Začetek Razvoja](docs/START_DEVELOPMENT.md)** - Vodič za začetek
+- **[Nastavitev Baze](docs/setup/DATABASE_SETUP.md)** - MySQL nastavitev
+- **[Pregled Dokumentacije](docs/README.md)** - Struktura dokumentacije
+
 ## License
 This project is licensed under the MIT License.
 

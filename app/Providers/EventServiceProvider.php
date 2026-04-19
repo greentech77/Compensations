@@ -18,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        \App\Services\Compenzations\Events\AddCompenzationEvent::class => [
+            \App\Listeners\GenerateCompenzationProposalPdf::class,
+        ],
     ];
 
     /**

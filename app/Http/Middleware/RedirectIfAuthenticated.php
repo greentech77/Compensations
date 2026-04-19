@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +30,7 @@ class RedirectIfAuthenticated
                 /*if ($request->routeIs('compenzation.add')) {
                     return $next($request);
                 }*/
-                return redirect(RouteServiceProvider::HOME);
+                return redirect('/dashboard');
             }
         }
 

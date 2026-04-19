@@ -1,11 +1,29 @@
 <template>
     <Head title="Kompenzacije"/>
     <div class="w-full bg-stone-15 p-8 rounded-md">
-
-        <div class="flex justify-end space-x-4 mb-6">
-
-        <Button class="button button--stone" @click="addcompenzation()">Dodaj kompenzacijo</Button>
-
+        <div class="bg-white border border-stone rounded-md p-6 mb-6">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div class="flex flex-wrap items-end gap-4">
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-gray-700 mb-1">Iskanje</label>
+                        <Input
+                            type="text"
+                            v-model="localFilters.search"
+                            class="w-96"
+                            placeholder="Naziv, ID, datum, znesek, diskont ali provizija"
+                        />
+                    </div>
+                    <Button class="button button--stone" @click="applyFilters()">Filtriraj</Button>
+                    <Button
+                        v-if="hasActiveFilters"
+                        class="button button--stone"
+                        @click="clearFilters()"
+                    >
+                        Počisti
+                    </Button>
+                </div>
+                <Button class="button button--stone" @click="addcompenzation()">Dodaj kompenzacijo</Button>
+            </div>
         </div>
 
         <table class="bg-white w-full divide-y divide-stone">
@@ -55,10 +73,11 @@
 
 
 <script>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/inertia-vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import Pagination from '@/Components/Pagination'
 import Button from '@/Components/Button.vue'
+import Input from '@/Components/Input.vue'
 
 export default {
 
@@ -66,13 +85,54 @@ export default {
 
     components: {
         Head,
-        Link,
         Pagination,
-        Button
+        Button,
+        Input
     },
 
     props: {
         compenzations: Object,
+        filters: {
+            type: Object,
+            default: () => ({
+                search: null
+            })
+        }
+    },
+
+    data() {
+        return {
+            localFilters: {
+                search: this.filters?.search ?? ''
+            },
+            searchTimeout: null
+        }
+    },
+
+    computed: {
+        hasActiveFilters() {
+            return !!this.localFilters.search;
+        }
+    },
+
+    watch: {
+        filters: {
+            handler(newFilters) {
+                if (newFilters) {
+                    this.localFilters.search = newFilters.search ?? '';
+                }
+            },
+            immediate: true
+        },
+        'localFilters.search': function () {
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+
+            this.searchTimeout = setTimeout(() => {
+                this.applyFilters();
+            }, 300);
+        }
     },
 
     methods: {
@@ -103,7 +163,36 @@ export default {
             }))
         },
         addcompenzation() {
+            // Počisti localStorage PRED navigacijo, da se komponente ne naložijo
+            localStorage.removeItem('components');
+
             this.$inertia.get(this.route('compenzations.compenzation.new'));
+        },
+        applyFilters() {
+            const params = {};
+            
+            if (this.localFilters.search) {
+                params.search = this.localFilters.search;
+            }
+
+            this.$inertia.get(this.route('compenzations'), params, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        },
+        clearFilters() {
+            this.localFilters.search = '';
+            
+            this.$inertia.get(this.route('compenzations'), {}, {
+                preserveState: true,
+                preserveScroll: true
+            });
+        }
+    },
+    beforeUnmount() {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
         }
     }
 }

@@ -9,7 +9,7 @@
             <SteppedForm :steps="steps" v-model:currentStepIndex="currentStepIndex" @changeStep="onChangeStep">
 
                 <template v-for="(step, index) in steps" :key="index" v-slot:[`step-${index}`]>
-                    <component :is="step.component" v-bind="step.props" @cancel="onCancelStep" @finish="onFinishStep"/>
+                    <component :is="step.component" :key="`step-${index}-${componentKey}`" v-bind="step.props" @cancel="onCancelStep" @finish="onFinishStep"/>
                 </template>
 
             </SteppedForm>
@@ -66,6 +66,7 @@ export default {
         }
 
         return {
+            componentKey: Date.now(), // Key za rekreacijo komponente ob vsakem odpiranju
             steps: [
                 {
                     enabled: true,
@@ -90,11 +91,22 @@ export default {
         }
      },
 
+    beforeMount() {
+        // Počisti localStorage PRED vsem - najzgodneje možno
+        localStorage.removeItem('components');
+    },
     created() {
         //if (process.env.MIX_APP_ENV == 'local') {
             this.currentStepIndex = 0
         //}
-
+        // Počisti localStorage ob odpiranju forme, da se vedno začne z eno komponento
+        localStorage.removeItem('components');
+    },
+    mounted() {
+        // Počisti localStorage še enkrat za varnost
+        localStorage.removeItem('components');
+        // Rekreiraj komponento ob vsakem odpiranju - posodobi key
+        this.componentKey = Date.now();
     },
 
 }

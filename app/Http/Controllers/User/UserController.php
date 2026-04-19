@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Validation\Validation;
 use App\Services\Entities\EntityService;
 use App\Models\Entity;
@@ -31,9 +32,14 @@ class UserController extends Controller
 
     public function getEntities(Request $request, EntityService $entityService) 
     {
-        $entities = $entityService->entities();
+        $search = $request->input('search');
+        $entities = $entityService->entities($search);
+        
         return Inertia::render('Entities', [
             'entities' => $entities,
+            'filters' => [
+                'search' => $search
+            ],
             'breadcrumb' =>[
                 [
                     'label' => 'Podjetja',
@@ -70,6 +76,50 @@ class UserController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function downloadCompenzationPdf(Request $request, $entityId, $compenzationId, $type)
+    {
+        $compenzation = \App\Models\Compenzation::with([
+            'proposal',
+            'implementationAgreement',
+            'realizationAgreement'
+        ])->findOrFail($compenzationId);
+
+        // Verify that the entity is part of this compenzation
+        $entityExists = \App\Models\CompenzationEntity::where('id_compenzation', $compenzationId)
+            ->where('id_entity', $entityId)
+            ->exists();
+
+        if (!$entityExists) {
+            abort(403, 'Entity is not part of this compenzation');
+        }
+
+        $filePath = null;
+        $fileName = null;
+
+        switch ($type) {
+            case 'proposal':
+                $filePath = $compenzation->proposal->file_path ?? null;
+                $fileName = $compenzation->proposal->file_name ?? "kompenzacija{$compenzationId}.pdf";
+                break;
+            case 'implementation':
+                $filePath = $compenzation->implementationAgreement->file_path ?? null;
+                $fileName = $compenzation->implementationAgreement->file_name ?? "pogodba_o_izvedbi{$compenzationId}.pdf";
+                break;
+            case 'realization':
+                $filePath = $compenzation->realizationAgreement->file_path ?? null;
+                $fileName = $compenzation->realizationAgreement->file_name ?? "pogodba_o_unovcenju{$compenzationId}.pdf";
+                break;
+            default:
+                abort(404, 'Invalid PDF type');
+        }
+
+        if (!$filePath || !\Storage::disk('local')->exists($filePath)) {
+            abort(404, 'PDF file not found');
+        }
+
+        return \Storage::disk('local')->download($filePath, $fileName);
     }
 
     public function RegisterEntity() 

@@ -61,31 +61,93 @@
     <div class="max-w-8xl mx-auto w-full flex-auto justify-center py-12">
         <h2 class="text-lg mb-5 font-medium flex-auto">Kompenzacije</h2>
         <div class="w-full bg-stone-15 p-8 rounded-md">
-            
-            <table class="bg-white w-full divide-y divide-stone">
-            <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
-                <tr>
-                    <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
-                        Ime podjetja
-                    </th>
-                    <th scope="col" class="pl-6 py-3 bg-blue">
-                        Pošta
-                    </th>
-                    <th scope="col" class="pl-6 py-3 bg-blue">
-                        Davčna številka
-                    </th>
-                    <th scope="col" class="pl-6 py-3 bg-blue">
-                        Matična številka
-                    </th>
-                    <th scope="col" class="pl-6 py-3 bg-blue">
-                        Email
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-stone">
-            </tbody>
-               
-            </table>
+            <div v-if="entity.compenzations && entity.compenzations.length > 0">
+                <table class="bg-white w-full divide-y divide-stone">
+                    <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
+                        <tr>
+                            <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
+                                Številka
+                            </th>
+                            <th scope="col" class="pl-6 py-3 bg-blue">
+                                Ime kompenzacije
+                            </th>
+                            <th scope="col" class="pl-6 py-3 bg-blue">
+                                Datum
+                            </th>
+                            <th scope="col" class="pl-6 py-3 bg-blue">
+                                Znesek
+                            </th>
+                            <th scope="col" class="pl-6 py-3 rounded-tr-md bg-blue">
+                                PDF dokumenti
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone">
+                        <tr v-for="compenzation in entity.compenzations" :key="compenzation.id">
+                            <td class="pl-6 py-4 text-sm">
+                                {{ compenzation.id }}/{{ compenzation.year }}
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                <Link :href="route('compenzations.compenzation', { id: compenzation.id })" class="text-blue hover:underline">
+                                    {{ compenzation.name }}
+                                </Link>
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                {{ formatDate(compenzation.date) }}
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                {{ formatAmount(compenzation.amount) }} €
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                <div class="flex space-x-2">
+                                    <a 
+                                        v-if="compenzation.proposal && compenzation.proposal.file_path"
+                                        :href="route('entities.compenzation.pdf.download', { 
+                                            entityId: entity.id, 
+                                            compenzationId: compenzation.id, 
+                                            type: 'proposal' 
+                                        })"
+                                        class="inline-flex items-center px-3 py-1 bg-blue text-white text-xs rounded hover:bg-blue-600 transition"
+                                        title="Prenos kompenzacije"
+                                    >
+                                        <DownloadIcon class="h-4 w-4 mr-1"/>
+                                        Kompenzacija
+                                    </a>
+                                    <a 
+                                        v-if="compenzation.implementation_agreement && compenzation.implementation_agreement.file_path"
+                                        :href="route('entities.compenzation.pdf.download', { 
+                                            entityId: entity.id, 
+                                            compenzationId: compenzation.id, 
+                                            type: 'implementation' 
+                                        })"
+                                        class="inline-flex items-center px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+                                        title="Prenos pogodbe o izvedbi"
+                                    >
+                                        <DownloadIcon class="h-4 w-4 mr-1"/>
+                                        Pogodba o izvedbi
+                                    </a>
+                                    <a 
+                                        v-if="compenzation.realization_agreement && compenzation.realization_agreement.file_path"
+                                        :href="route('entities.compenzation.pdf.download', { 
+                                            entityId: entity.id, 
+                                            compenzationId: compenzation.id, 
+                                            type: 'realization' 
+                                        })"
+                                        class="inline-flex items-center px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition"
+                                        title="Prenos pogodbe o unovčenju"
+                                    >
+                                        <DownloadIcon class="h-4 w-4 mr-1"/>
+                                        Pogodba o unovčenju
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-else class="bg-white p-8 text-center text-gray-500">
+                Ni kompenzacij za to podjetje.
+            </div>
         </div>
     </div>
 </template>
@@ -94,7 +156,7 @@
 import { Head, Link } from '@inertiajs/vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import InputGroup from '@/Components/InputGroup.vue'
-import { PencilAltIcon } from '@heroicons/vue/outline';
+import { PencilAltIcon, DownloadIcon } from '@heroicons/vue/outline';
 import Label from '@/Components/Label.vue'
 import Button from '@/Components/Button.vue'
 
@@ -106,6 +168,7 @@ export default {
         Link,
         InputGroup,
         PencilAltIcon,
+        DownloadIcon,
         Label,
         Button
     },
@@ -155,6 +218,22 @@ export default {
                     this.toggleEditMode(section, false)
                 }
             })
+        },
+        formatDate(date) {
+            if (!date) return 'N/A';
+            const d = new Date(date);
+            return d.toLocaleDateString('sl-SI', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit' 
+            });
+        },
+        formatAmount(amount) {
+            if (!amount) return '0,00';
+            return parseFloat(amount).toLocaleString('sl-SI', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
     },
 

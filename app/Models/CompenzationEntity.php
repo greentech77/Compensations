@@ -24,6 +24,6 @@ class CompenzationEntity extends Model
      public function entity()
      {
          return $this->belongsTo(Entity::class, 'id_entity', 'id')
-                    ->select('id', 'company_name');
+                    ->select('id', 'company_name', 'email', 'address', 'post_num', 'post_town');
      }
 }

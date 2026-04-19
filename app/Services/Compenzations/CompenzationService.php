@@ -24,57 +24,170 @@ class CompenzationService {
         $this->calculationsService = $calculationsService;
     }
 
-    public function compenzations() 
+    public function compenzations(?string $search = null, ?string $dateFrom = null, ?string $dateTo = null) 
     {
-        return Compenzation::with(['realizationAgreement', 'implementationAgreement'])
-                                    ->paginate(7);
+        $query = Compenzation::with(['realizationAgreement', 'implementationAgreement']);
+
+        if ($search) {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%")
+                    ->orWhere('date', 'like', "%{$search}%")
+                    ->orWhere('amount', 'like', "%{$search}%")
+                    ->orWhereHas('implementationAgreement', function ($agreementQuery) use ($search) {
+                        $agreementQuery->where('discount', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('realizationAgreement', function ($agreementQuery) use ($search) {
+                        $agreementQuery->where('commission', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('date', '>=', Carbon::parse($dateFrom)->format('Y-m-d'));
+        }
+
+        if ($dateTo) {
+            $query->whereDate('date', '<=', Carbon::parse($dateTo)->format('Y-m-d'));
+        }
+        
+        return $query->orderBy('date', 'desc')->paginate(7);
     }
 
     public function compenzation($id)
     {
-        $compenzation = Compenzation::with(['realizationAgreement', 'implementationAgreement', 'compenzationEntity.entity'])->find($id);
+        $compenzation = Compenzation::with(['realizationAgreement', 'implementationAgreement', 'compenzationEntity.entity', 'proposal'])->find($id);
 
         return $compenzation;
     }
 
     public function patchCompenzation($id, $data)
     {
-        // Find the Compenzation
-        $compenzation = Compenzation::findOrFail($id);
+        return DB::transaction(function() use ($id, $data) {
+            // Find the Compenzation
+            $compenzation = Compenzation::findOrFail($id);
 
-        // Separate data for different models
-        $compenzationData = Arr::except($data, ['realization_agreement', 'implementation_agreement']);
-        $realizationAgreementData = $data['realization_agreement'] ?? [];
-        $implementationAgreementData = $data['implementation_agreement'] ?? [];
+            // Extract entities if present
+            $entities = $data['entities'] ?? null;
+            
+            // Separate data for different models
+            $compenzationData = Arr::only($data, ['date', 'amount', 'date_payed', 'finished']);
+            
+            // Convert date to proper format if present (date only, not datetime)
+            if (isset($compenzationData['date'])) {
+                $compenzationData['date'] = Carbon::parse($compenzationData['date'])->format('Y-m-d');
+            }
+            
+            // Convert date_payed to proper format if present
+            if (isset($compenzationData['date_payed'])) {
+                $compenzationData['date_payed'] = Carbon::parse($compenzationData['date_payed'])->format('Y-m-d');
+            }
+            
+            // Convert finished to boolean if present
+            if (isset($compenzationData['finished'])) {
+                $compenzationData['finished'] = (bool)$compenzationData['finished'];
+            }
+            
+            // Extract discount, commission, and with_ddv
+            $discount = isset($data['discount']) ? floatval(str_replace(',', '.', $data['discount'])) : null;
+            $commission = isset($data['commission']) ? floatval(str_replace(',', '.', $data['commission'])) : null;
+            $withDdv = $data['with_ddv'] ?? false;
 
-        // Update Compenzation
-        //dd($compenzationData);
-        $compenzation->update($compenzationData);
+            // Update Compenzation basic data
+            if (!empty($compenzationData)) {
+                $compenzation->update($compenzationData);
+            }
 
-        // Update Realization Agreement
-        if ($compenzation->realizationAgreement)
-        {
-            $compenzation->realizationAgreement->update($realizationAgreementData);
-        }
-        else
-        {
-            $compenzation->realizationAgreement()->create($realizationAgreementData);
-        }
+            // Update entities if provided
+            if ($entities !== null && is_array($entities)) {
+                // Delete existing entities
+                CompenzationEntity::where('id_compenzation', $id)->delete();
+                
+                // Insert new entities
+                foreach ($entities as $entity) {
+                    if (isset($entity['key'])) {
+                        CompenzationEntity::create([
+                            'id_compenzation' => $id,
+                            'id_entity' => $entity['key'],
+                            'num' => null
+                        ]);
+                    }
+                }
+            }
 
-        // Update Implementation Agreement
-        if ($compenzation->implementationAgreement)
-        {
-            $compenzation->implementationAgreement->update($implementationAgreementData);
-        }
-        else
-        {
-            $compenzation->implementationAgreement()->create($implementationAgreementData);
-        }
+            // Recalculate and update Implementation Agreement
+            if ($discount !== null || $withDdv !== null) {
+                $amount = $compenzation->amount;
+                $discountValue = $discount ?? $compenzation->implementationAgreement->discount ?? 0;
+                $withDdvValue = $withDdv;
+                
+                $discountCalculation = $this->calculationsService->calculateDiscount(
+                    $amount, 
+                    $discountValue, 
+                    $withDdvValue
+                );
 
-        // Refresh the model to ensure all updates are reflected
-        $compenzation->refresh();
+                if ($compenzation->implementationAgreement) {
+                    $compenzation->implementationAgreement->update([
+                        'discount' => $discountValue,
+                        'with_ddv' => $withDdvValue,
+                        'discount_amount' => $discountCalculation['discountAmount'],
+                        'discount_ddv_amount' => $discountCalculation['netDicountAmount'],
+                        'net_amount' => $discountCalculation['amountWithOutDDV'],
+                        'transfer_amount' => $discountCalculation['transferAmount'],
+                    ]);
+                } else {
+                    $compenzation->implementationAgreement()->create([
+                        'discount' => $discountValue,
+                        'with_ddv' => $withDdvValue,
+                        'discount_amount' => $discountCalculation['discountAmount'],
+                        'discount_ddv_amount' => $discountCalculation['netDicountAmount'],
+                        'net_amount' => $discountCalculation['amountWithOutDDV'],
+                        'transfer_amount' => $discountCalculation['transferAmount'],
+                    ]);
+                }
+            }
 
-        return $compenzation;
+            // Recalculate and update Realization Agreement
+            if ($commission !== null) {
+                $amount = $compenzation->amount;
+                
+                $commissionCalculation = $this->calculationsService->calculateCompenzation(
+                    $amount, 
+                    $commission
+                );
+
+                if ($compenzation->realizationAgreement) {
+                    $compenzation->realizationAgreement->update([
+                        'commission' => $commission,
+                        'commission_amount' => $commissionCalculation['comissionAmount'],
+                        'commission_ddv_amount' => $commissionCalculation['commisionAmountDDV'],
+                        'transfer_amount' => $commissionCalculation['transferAmount'],
+                    ]);
+                } else {
+                    $compenzation->realizationAgreement()->create([
+                        'commission' => $commission,
+                        'commission_amount' => $commissionCalculation['comissionAmount'],
+                        'commission_ddv_amount' => $commissionCalculation['commisionAmountDDV'],
+                        'transfer_amount' => $commissionCalculation['transferAmount'],
+                    ]);
+                }
+            }
+
+            // Refresh the model to ensure all updates are reflected
+            $compenzation->refresh();
+            $compenzation->load([
+                'compenzationEntity.entity',
+                'implementationAgreement',
+                'realizationAgreement',
+                'proposal'
+            ]);
+
+            // Trigger PDF regeneration event
+            event(new \App\Services\Compenzations\Events\AddCompenzationEvent($compenzation));
+
+            return $compenzation;
+        });
     }
 
     public function deleteCompenzation($id) {
@@ -118,11 +231,11 @@ class CompenzationService {
 
             $compenzation = Compenzation::make([
                 'name'          => $compenzationName,
-                'date'          => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d H:i:s'),
+                'date'          => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d'),
                 'year'          => date('Y'),
                 'amount'        => $compenzationData['compenzationAmount'],
-                'date_finished' => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d H:i:s'),
-                'date_payed'    => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d H:i:s'),
+                'date_finished' => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d'),
+                'date_payed'    => Carbon::parse($compenzationData['compenzationDate'])->format('Y-m-d'),
             ]);
 
             $compenzationId = $compenzation->save() ? $compenzation->id : null;

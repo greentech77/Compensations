@@ -9,6 +9,13 @@ class BillCompenzation extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'bills_compenzations';
+
     protected $fillable = ['id_bill', 'id_compenzation', 'id_entity'];
 
 

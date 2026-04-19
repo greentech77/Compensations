@@ -10,6 +10,9 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Compenzation\CompenzationController;
+use App\Http\Controllers\Bill\BillController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ContractsExportController;
 
 use Inertia\Inertia;
 
@@ -49,14 +52,23 @@ Route::get('/entities', [UserController::class, 'getEntities'])->name('entities'
 Route::get('/entities/{id}', [UserController::class, 'getEntity'])->name('entities.entity');
 Route::patch('/entities/{id}', [UserController::class, 'patchEntity'])->name('entities.entity.patch');
 Route::get('/entities/entity/new', [UserController::class, 'registerEntity'])->name('entities.entity.register');
+Route::get('/entities/{entityId}/compenzation/{compenzationId}/pdf/{type}', [UserController::class, 'downloadCompenzationPdf'])->name('entities.compenzation.pdf.download');
 
 Route::get('/compenzations', [CompenzationController::class, 'getCompenzations'])->name('compenzations');
+Route::get('/compenzations/stats', [CompenzationController::class, 'stats'])->name('compenzations.stats');
+Route::get('/compenzations/stats/export', [CompenzationController::class, 'exportStats'])->name('compenzations.stats.export');
+Route::get('/compenzations/export', [CompenzationController::class, 'exportCompenzations'])->name('compenzations.export');
 Route::get('/compenzations/{id}', [CompenzationController::class, 'getCompenzation'])->name('compenzations.compenzation');
 Route::patch('/compenzations/{id}', [CompenzationController::class, 'patchCompenzation'])->name('compenzations.compenzation.patch');
+Route::get('/compenzations/{id}/pdf/{type}', [CompenzationController::class, 'downloadCompenzationPdf'])->name('compenzations.compenzation.pdf.download');
 Route::get('/compenzations/compenzation/new', [CompenzationController::class, 'addCompenzation'])->name('compenzations.compenzation.new');
 
+Route::get('/bills', [BillController::class, 'getBills'])->name('bills');
+Route::post('/bills/specification', [BillController::class, 'createSpecification'])->name('bills.specification');
+Route::get('/bills/{id}/pdf', [BillController::class, 'downloadBillPdf'])->name('bills.pdf.download');
+
 /**
- * Post za enterprise data step registracijo 
+ * Post za enterprise data step registracijo
  */
 Route::post('/register/data', [RegisterController::class, 'postEntityData'])->name('register.data');
 
@@ -78,6 +90,14 @@ Route::post('/compenzation/data', [CompenzationController::class, 'postCompenzat
  */
 
 Route::post('/compenzation/add', [CompenzationController::class, 'postCompenzation'])->name('compenzation.add');
+
+// Export routes
+Route::get('/exports', [ExportController::class, 'index'])->name('exports.index');
+Route::get('/exports/bills', [ExportController::class, 'bills'])->name('exports.bills');
+Route::match(['get', 'post'], '/exports/bills/download', [ExportController::class, 'exportBills'])->name('exports.bills.export');
+Route::get('/exports/contracts', [ContractsExportController::class, 'contracts'])->name('exports.contracts');
+Route::match(['get', 'post'], '/exports/contracts/download', [ContractsExportController::class, 'exportContracts'])->name('exports.contracts.export');
+Route::get('/exports/compenzations', [ExportController::class, 'compenzations'])->name('exports.compenzations');
 
 });
 

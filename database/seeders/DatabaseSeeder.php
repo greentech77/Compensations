@@ -20,8 +20,9 @@ class DatabaseSeeder extends Seeder
         \App\Models\ImplementationAgreement::factory(20)->create();
         \App\Models\RealizationAgreement::factory(20)->create();
         $this->call([
+            //PostNumberSeeder::class,
             UserSeeder::class,
-            EntitySeeder::class,
+            //EntitySeeder::class,
         ]);
     }
 }
