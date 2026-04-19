@@ -18,10 +18,16 @@ class Compenzation extends Model
 
     protected $fillable = ['name', 'date', 'year', 'amount', 'vat', 'commission', 'date_finished', 'date_payed', 'storno', 'finished', 'with_ddv'];
 
+    protected $casts = [
+        'date' => 'date',
+        'date_finished' => 'date',
+        'date_payed' => 'date',
+    ];
+
     public function realizationAgreement()
     {
         return $this->hasOne(RealizationAgreement::class, 'id_compenzation', 'id')
-            ->select('id', 'id_compenzation', 'commission', 'commission_amount', 'commission_ddv_amount', 'transfer_amount')
+            ->select('id', 'id_compenzation', 'commission', 'commission_amount', 'commission_ddv_amount', 'transfer_amount', 'file_path', 'file_name')
             ->withDefault([
                 'commission' => 0, // or null, depending on your preference
             ]); // This ensures a null object is returned instead of null
@@ -30,7 +36,7 @@ class Compenzation extends Model
     public function implementationAgreement()
     {
         return $this->hasOne(ImplementationAgreement::class, 'id_compenzation', 'id')
-            ->select('id', 'id_compenzation', 'discount', 'with_ddv', 'discount_amount', 'discount_ddv_amount', 'net_amount', 'transfer_amount')
+            ->select('id', 'id_compenzation', 'discount', 'with_ddv', 'discount_amount', 'discount_ddv_amount', 'net_amount', 'transfer_amount', 'file_path', 'file_name')
             ->withDefault([
                 'discount' => 0, // or null, depending on your preference
             ]); // This ensures a null object is returned instead of null
@@ -41,5 +47,10 @@ class Compenzation extends Model
         return $this->hasMany(CompenzationEntity::class, 'id_compenzation', 'id')
                 ->select('id', 'id_compenzation', 'id_entity')
                 ->with('entity'); // This eager loads the entity relationship
+    }
+
+    public function proposal()
+    {
+        return $this->hasOne(CompenzationProposal::class, 'id_compenzation', 'id');
     }
 }

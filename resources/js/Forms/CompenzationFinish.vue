@@ -62,6 +62,8 @@ export default {
         onSubmit() {
             this.form.post(this.route('compenzation.add'), {
                 onSuccess: () => {
+                    // Počisti localStorage po uspešnem dodajanju kompenzacije
+                    localStorage.removeItem('components');
                     this.onComplete()
                 },
                 preserveScroll: true,

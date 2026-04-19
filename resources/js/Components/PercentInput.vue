@@ -15,8 +15,8 @@
 export default {
    props: {
        modelValue: {
-           type: Number,
-           required: true,
+           type: [Number, String],
+           default: null,
        },
    },
    data() {
@@ -32,8 +32,12 @@ export default {
                : (this.modelValue != null ? this.modelValue.toFixed(2).replace('.', ',') + '%' : '');
        },*/
        displayValue() {
-        return this.modelValue != null 
-            ? this.modelValue.toFixed(2).replace('.', ',') + ' %'
+        if (this.modelValue == null || this.modelValue === '') {
+            return '';
+        }
+        const numValue = parseFloat(this.modelValue);
+        return !isNaN(numValue) 
+            ? numValue.toFixed(2).replace('.', ',') + ' %'
             : '';
         },
    },
@@ -45,7 +49,12 @@ export default {
        },
        handleBlur() {
            this.isFocused = false;
-           this.$emit('update:modelValue', parseFloat(this.modelValue.toFixed(2)));
+           if (this.modelValue != null && this.modelValue !== '') {
+               const numValue = parseFloat(this.modelValue);
+               if (!isNaN(numValue)) {
+                   this.$emit('update:modelValue', parseFloat(numValue.toFixed(2)));
+               }
+           }
        },
    },
 };

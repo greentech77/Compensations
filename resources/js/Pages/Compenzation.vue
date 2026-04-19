@@ -10,70 +10,149 @@
 
             <div class="lg:w-3/4 w-full mt-4 lg:mt-0 ml-0 sm:ml-10 lg:ml-0 space-y-4">
                 <section class="bg-white rounded-md p-6 filter drop-shadow relative z-10">
-                    <EditableForm class="relative z-30" :editable="compenzation" :title="'Osnovni podatki'" :patch-route="patchRoute" :form="compenzationForm" v-slot="{ edit, form }">
+                    <form @submit.prevent="onSubmitSection(formdata)" class="space-y-4">
+                        <div class="flex items-center">
+                            <h2 class="text-lg font-medium flex-auto">Osnovni podatki</h2>
+                            <button class="button button--icon pl-3 text-stone hover:text-stone-hover" :disabled="formdata.edit" @click.prevent="toggleEditMode(formdata)">
+                                <PencilAltIcon class="h-6 w-6"/>
+                            </button>
+                        </div>
                     
                         <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
                             <InputGroup 
                                 class="w-full md:w-1/2 flex-auto" 
-                                v-model="form.date"
+                                v-model="formdata.form.date"
                                 label="Datum" 
                                 type="date"
-                                :error="form.errors.date" 
-                                @change="form.clearErrors('date')" 
-                                :edit="edit"
+                                :error="formdata.form.errors.date" 
+                                @change="formdata.form.clearErrors('date')" 
+                                :edit="formdata.edit"
                             />
-                            <InputGroup class="w-full md:w-1/2 flex-auto" type="currency" v-model="form.amount" label="Znesek" :error="form.errors.amount" @change="form.clearErrors('amount')" :edit="edit"/>
+                            <InputGroup class="w-full md:w-1/2 flex-auto" type="currency" v-model="formdata.form.amount" label="Znesek" :error="formdata.form.errors.amount" @change="formdata.form.clearErrors('amount')" :edit="formdata.edit"/>
                         </div>
 
                         <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
-                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.discount" label="Diskont" :error="form.errors.discount" @change="form.clearErrors('discount')" :edit="edit"/> 
+                            <InputGroup 
+                                class="w-full md:w-1/2 flex-auto" 
+                                v-model="formdata.form.date_payed"
+                                label="Datum plačila" 
+                                type="date"
+                                :error="formdata.form.errors.date_payed" 
+                                @change="formdata.form.clearErrors('date_payed')" 
+                                :edit="formdata.edit"
+                            />
+                            <div class="w-full md:w-1/2 flex-auto flex items-center">
+                                <Checkbox 
+                                    v-model="formdata.form.finished"
+                                    name="finished" 
+                                    label="Zaključena" 
+                                    class="flex items-center"
+                                    :disabled="!formdata.edit"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
+                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="formdata.form.discount" label="Diskont" :error="formdata.form.errors.discount" @change="formdata.form.clearErrors('discount')" :edit="formdata.edit"/> 
                             <div class="w-full md:w-1/3 flex-auto flex items-center">
                                 <Checkbox 
-                                    v-model="form.with_ddv"
+                                    v-model="formdata.form.with_ddv"
                                     name="discountWithVat" 
                                     label="Z DDV" 
                                     class="flex items-center"
+                                    :disabled="!formdata.edit"
                                 />
                             </div>
-                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.commission" label="Provizija" :error="form.errors['formattedCommission']" @change="form.clearErrors('formattedCommission')" :edit="edit"/>
+                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="formdata.form.commission" label="Provizija" :error="formdata.form.errors['formattedCommission']" @change="formdata.form.clearErrors('formattedCommission')" :edit="formdata.edit"/>
                         </div>
 
-                        <div class="flex justify-end space-x-4" v-for="(entity, index) in form.entities" :key="index">
-                        <!-- InputGroup for selecting the company name -->
-                        <InputGroup 
-                            class="w-full md:w-1/2 flex-auto text-left" 
-                            type="select" 
-                            :name="'compenzationEntities[' + index + ']'" 
-                            :options="entitiesOptions" 
-                            v-model="form.entities[index]"
-                            label="Stranka" 
-                            :error="form.errors['compenzationEntities.' + index]"
-                            @change="clearDynamicError(index, 'compenzationEntity')"
-                        />
-                        
+                        <!-- Entities selection -->
+                        <div v-for="(entity, index) in formdata.form.entities" :key="index" class="flex space-x-4 items-end">
+                            <InputGroup 
+                                class="flex-1" 
+                                type="select" 
+                                :name="'compenzationEntities[' + index + ']'" 
+                                :options="getAvailableOptions(index)" 
+                                v-model="formdata.form.entities[index]"
+                                label="Stranka" 
+                                :error="formdata.form.errors['compenzationEntities.' + index]"
+                                @change="formdata.form.clearErrors('compenzationEntities.' + index)"
+                                :edit="formdata.edit"
+                            />
+                            
+                            <!-- Button to remove an entity (if more than one exists) -->
+                            <Button 
+                                v-if="index > 0 && formdata.edit"
+                                class="button button--danger h-10 mb-0.5" 
+                                @click="removeComponent(index)" 
+                                :loading="formdata.form.processing"
+                            >
+                                Odstrani
+                            </Button>
+                        </div>
+
                         <!-- Button to add a new entity -->
-                        <Button 
-                            class="md:w-1/4 flex-auto button--stone h-10 mt-7" 
-                            @click="addComponent" 
-                            :loading="compenzationForm.processing"
-                            :edit="edit"
-                        >
-                            Dodaj stranko
-                        </Button>
+                        <div v-if="formdata.edit && hasAvailableEntities" class="flex justify-start">
+                            <Button 
+                                class="button button--stone" 
+                                @click="addComponent" 
+                                :loading="formdata.form.processing"
+                            >
+                                Dodaj stranko
+                            </Button>
+                        </div>
 
-                        <!-- Button to remove an entity (if more than one exists) -->
-                        <Button 
-                            v-if="index > 0"
-                            class="md:w-1/4 flex-auto button--danger h-10 mt-7" 
-                            @click="removeComponent(index)" 
-                            :loading="compenzationForm.processing"
-                            :edit="edit"
+                        <div class="flex justify-end space-x-4" v-if="formdata.edit">
+                            <Button class="button button--white" @click.prevent="resetSection(formdata)" :disabled="formdata.form.processing">Prekliči</Button>
+                            <Button class="button button--stone" type="submit" :loading="formdata.form.processing">Shrani</Button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- PDF Download Section -->
+                <section class="bg-white rounded-md p-6 filter drop-shadow">
+                    <h2 class="text-lg font-medium mb-4">Prenos PDF dokumentov</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <a 
+                            v-if="compenzation.proposal && compenzation.proposal.file_path"
+                            :href="route('compenzations.compenzation.pdf.download', { 
+                                id: compenzation.id, 
+                                type: 'proposal' 
+                            })"
+                            class="inline-flex items-center px-4 py-2 bg-blue text-white text-sm rounded hover:bg-blue-600 transition"
+                            title="Prenos kompenzacije"
                         >
-                            Odstrani stranko
-                        </Button>
+                            <DownloadIcon class="h-5 w-5 mr-2"/>
+                            Kompenzacija
+                        </a>
+                        <a 
+                            v-if="compenzation.implementation_agreement && compenzation.implementation_agreement.file_path"
+                            :href="route('compenzations.compenzation.pdf.download', { 
+                                id: compenzation.id, 
+                                type: 'implementation' 
+                            })"
+                            class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                            title="Prenos pogodbe o izvedbi"
+                        >
+                            <DownloadIcon class="h-5 w-5 mr-2"/>
+                            Pogodba o izvedbi
+                        </a>
+                        <a 
+                            v-if="compenzation.realization_agreement && compenzation.realization_agreement.file_path"
+                            :href="route('compenzations.compenzation.pdf.download', { 
+                                id: compenzation.id, 
+                                type: 'realization' 
+                            })"
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+                            title="Prenos pogodbe o unovčenju"
+                        >
+                            <DownloadIcon class="h-5 w-5 mr-2"/>
+                            Pogodba o unovčenju
+                        </a>
+                        <div v-if="!hasAnyPdf" class="text-gray-500 text-sm">
+                            Ni generiranih PDF dokumentov.
+                        </div>
                     </div>
-
-                    </EditableForm>
                 </section>
             </div>
         </section>
@@ -85,11 +164,10 @@
 import { Head, Link } from '@inertiajs/inertia-vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import InputGroup from '@/Components/InputGroup.vue'
-import { PencilAltIcon } from '@heroicons/vue/outline';
+import { PencilAltIcon, DownloadIcon } from '@heroicons/vue/outline';
 import Label from '@/Components/Label.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import Button from '@/Components/Button.vue'
-import EditableForm from '@/Forms/EditableForm.vue'
 import { dateFormat, dateTimeFormat, percentFormat, currencyFormat, dateFormatSL} from '@/mixins/filters'
 
 export default {
@@ -100,10 +178,10 @@ export default {
         Link,
         InputGroup,
         PencilAltIcon,
+        DownloadIcon,
         Label,
         Button,
-        Checkbox,
-        EditableForm
+        Checkbox
     },
 
     props: {
@@ -114,16 +192,16 @@ export default {
     data() {
         const data = {}
 
-        return {
-            entitiesOptions: [],
-            select_entity: 'Izberi stranko',
-            compenzationForm : this.$inertia.form({
-                //amount: this.compenzation.amount ? this.currencyFormat(this.compenzation.amount) : null,
+        data['formdata'] = {
+            form: this.$inertia.form({
+                action: 'update',
                 amount: this.compenzation.amount ? this.compenzation.amount : null,
                 date: this.compenzation.date ? new Date(this.compenzation.date) : null,
-                discount: this.compenzation.implementation_agreement.discount ? this.percentFormat(this.compenzation.implementation_agreement.discount) : null,
-                with_ddv: this.compenzation.implementation_agreement.with_ddv ? this.booleanFormat(this.compenzation.implementation_agreement.with_ddv) : null,
-                commission: this.compenzation.realization_agreement.commission ? this.percentFormat(this.compenzation.realization_agreement.commission) : null,
+                date_payed: this.compenzation.date_payed ? new Date(this.compenzation.date_payed) : null,
+                finished: this.compenzation.finished ? this.booleanFormat(this.compenzation.finished) : false,
+                discount: this.compenzation.implementation_agreement?.discount || null,
+                with_ddv: this.compenzation.implementation_agreement?.with_ddv ? this.booleanFormat(this.compenzation.implementation_agreement.with_ddv) : false,
+                commission: this.compenzation.realization_agreement?.commission || null,
                 entities: this.compenzation.compenzation_entity 
                     ? this.compenzation.compenzation_entity.map(entity => ({
                         key: entity.entity.id,
@@ -131,53 +209,42 @@ export default {
                     }))
                     : []
             }),
-            components: [
-            { 
-                type: 'InputGroup', 
-                data: { compenzationEntity: { value: '' }, errors: { compenzationEntity: '' }, processing: false } 
-            }]
+            edit: false
+        }
+
+        return {
+            ...data,
+            entitiesOptions: [],
+            allEntitiesOptions: [] // Store all available entities
         }
     },
     async mounted() {
       const { data: response } = await axios.get(route('admin.api.entities'))
-      this.entitiesOptions = response.data.map(item => {
+      this.allEntitiesOptions = response.data.map(item => {
         return {
           label: item.company_name,
           key: item.id
         }
       });
-
-
-      /*console.log('Entity Options:', this.entitiesOptions);
-      console.log('Entities Array:', this.entities);
-      console.log('Entities 2 Array:', this.compenzationForm.entities);*/
-
-      this.loadComponents();
-    },
-
-    created() {
-        /*if (this.compenzation.compenzation_entity && this.compenzation.compenzation_entity.length > 0) {
-            components.value = this.compenzation.compenzation_entity;
-        }*/
+      this.entitiesOptions = [...this.allEntitiesOptions];
     },
 
     computed: {
-        companyNameBindings() {
-            return this.compenzationForm.entitites.map((entity, index) => ({
-                get: () => entity.entity.company_name,
-                set: value => {
-                    this.compenzationForm.entitites[index].entity.company_name = value;
-            },
-        }));
+        // Get list of already selected entity keys
+        selectedEntityKeys() {
+            return this.formdata.form.entities
+                .map(entity => entity?.key)
+                .filter(key => key !== undefined && key !== null && key !== '');
         },
-
-        amountFormatted: {
-            get() {
-                return this.currencyFormat(this.compenzationForm.amount); // Format for display
-            },
-            set(value) {
-                this.compenzationForm.amount = parseFloat(value.replace(/[^0-9.-]/g, '')); // Strip formatting for raw value
-            }
+        // Check if there are still available entities to select
+        hasAvailableEntities() {
+            return this.selectedEntityKeys.length < this.allEntitiesOptions.length;
+        },
+        // Check if any PDF is available
+        hasAnyPdf() {
+            return (this.compenzation.proposal && this.compenzation.proposal.file_path) ||
+                   (this.compenzation.implementation_agreement && this.compenzation.implementation_agreement.file_path) ||
+                   (this.compenzation.realization_agreement && this.compenzation.realization_agreement.file_path);
         }
     },
 
@@ -195,10 +262,9 @@ export default {
         },
         resetSection(section) {
             section.form.reset()
-            this.toggleEditMode(section)
+            this.toggleEditMode(section, false)
         },
         onSubmitSection(section) {
-            //console.log(section.form);
             section.form.patch(this.route('compenzations.compenzation.patch', {
                 id: this.compenzation.id
             }),{
@@ -207,44 +273,37 @@ export default {
                 }
             })
         },
+        // Get available options for a specific dropdown (exclude already selected entities)
+        getAvailableOptions(currentIndex) {
+            const currentValue = this.formdata.form.entities[currentIndex];
+            const currentKey = currentValue?.key;
+            
+            return this.allEntitiesOptions.filter(option => {
+                // Include current selected value in this dropdown
+                if (option.key === currentKey) {
+                    return true;
+                }
+                // Exclude all other already selected values
+                return !this.selectedEntityKeys.includes(option.key);
+            });
+        },
         addComponent() {
-
-        //const defaultEntity = this.entitiesOptions.length > 0 ? this.entitiesOptions[0].key : '';
-
-        // Add a new entity with default or empty values to the entities array in the form
-        this.compenzationForm.entities.push({
-            key: null,  // Unique key for the entity, initially null
-            label: ''   // Default empty label or value
-        });
-
-        this.saveComponents();
-
+            // Get first available entity
+            const availableOptions = this.allEntitiesOptions.filter(option => {
+                return !this.selectedEntityKeys.includes(option.key);
+            });
+            
+            // Add a new entity with first available option or empty
+            this.formdata.form.entities.push({
+                key: availableOptions.length > 0 ? availableOptions[0].key : null,
+                label: availableOptions.length > 0 ? availableOptions[0].label : ''
+            });
         },
 
         removeComponent(index) {
-            this.compenzationForm.entities.splice(index, 1);
-            this.saveComponents();
+            this.formdata.form.entities.splice(index, 1);
         },
 
-        saveComponents() {
-            localStorage.setItem('compenzationEntities', JSON.stringify(this.compenzationForm.entities));
-        },
-
-        loadComponents() {
-            const savedComponents = localStorage.getItem('components');
-            if (savedComponents) {
-                this.components = JSON.parse(savedComponents);
-            }
-        },
-
-        clearComponents() {
-            // Keep only the first entity and reset its values
-            if (this.compenzationForm.entities.length > 0) {
-                this.compenzationForm.entities = this.compenzationForm.entities.slice(0, 1);
-                this.compenzationForm.entities[0].key = null;
-                this.compenzationForm.entities[0].label = '';
-            }
-        },
         dateFormat,
         dateTimeFormat,
         percentFormat,

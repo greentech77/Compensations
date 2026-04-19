@@ -2,10 +2,22 @@
     <Head title="Podjetja"/>
     <div class="w-full bg-stone-15 p-8 rounded-md">
 
-        <div class="flex justify-end space-x-4 mb-6">
+        <div class="flex justify-between items-center space-x-4 mb-6">
+            <!-- Search input -->
+            <div class="flex-1 max-w-md">
+                <div class="relative">
+                    <input
+                        type="text"
+                        v-model="searchQuery"
+                        @input="search"
+                        placeholder="Išči po imenu, davčni št., matični št., emailu..."
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue focus:border-transparent"
+                    />
+                    <SearchIcon class="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                </div>
+            </div>
 
-        <Button class="button button--stone" @click="addEntity()">Dodaj podjetje</Button>
-
+            <Button class="button button--stone" @click="addEntity()">Dodaj podjetje</Button>
         </div>
 
         <table class="bg-white w-full divide-y divide-stone">
@@ -59,6 +71,8 @@ import { Head, Link } from '@inertiajs/inertia-vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import Pagination from '@/Components/Pagination'
 import Button from '@/Components/Button.vue'
+import { SearchIcon } from '@heroicons/vue/outline'
+import { debounce } from 'lodash'
 
 export default {
 
@@ -68,22 +82,38 @@ export default {
         Head,
         Link,
         Pagination,
-        Button
+        Button,
+        SearchIcon
     },
 
     props: {
         entities: Object,
+        filters: Object
+    },
+
+    data() {
+        return {
+            searchQuery: this.filters?.search || ''
+        }
     },
 
     methods: {
-         viewEntity(entity) {
+        viewEntity(entity) {
             this.$inertia.visit(this.route('entities.entity', {
                 id: entity.id
             }))
         },
         addEntity() {
             this.$inertia.get(this.route('entities.entity.register'));
-        }
+        },
+        search: debounce(function() {
+            this.$inertia.get(this.route('entities'), {
+                search: this.searchQuery
+            }, {
+                preserveState: true,
+                replace: true
+            })
+        }, 300)
     }
 }
 </script>

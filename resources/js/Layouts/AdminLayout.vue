@@ -20,6 +20,16 @@
                             <CurrencyEuroIcon class="w-6 h-6 inline-block mr-4"/>Kompenzacije
                         </Link>
                     </li>
+                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('bills')}">
+                        <Link :href="route('bills')">
+                            <DocumentTextIcon class="w-6 h-6 inline-block mr-4"/>Računi
+                        </Link>
+                    </li>
+                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('exports')}">
+                        <Link :href="route('exports.index')">
+                            <DocumentReportIcon class="w-6 h-6 inline-block mr-4"/>Izvozi
+                        </Link>
+                    </li>
                 </ul>
             </nav>
         </Sidebar>
@@ -72,7 +82,7 @@
 import { Link } from '@inertiajs/inertia-vue3'
 import Sidebar from '@/Layouts/Sidebar.vue'
 import MainBlock from '@/Layouts/MainBlock.vue'
-import { ChevronRightIcon, HomeIcon, UserIcon, DocumentReportIcon, ChartPieIcon, OfficeBuildingIcon, CurrencyEuroIcon } from '@heroicons/vue/outline';
+import { ChevronRightIcon, HomeIcon, UserIcon, DocumentReportIcon, ChartPieIcon, OfficeBuildingIcon, CurrencyEuroIcon, DocumentTextIcon } from '@heroicons/vue/outline';
 import currentRoute from '@/mixins/currentRoute'
 import User from '@/Components/User.vue'
 import Modal from '@/Components/Modal.vue'
@@ -93,6 +103,7 @@ export default {
         ChartPieIcon,
         OfficeBuildingIcon,
         CurrencyEuroIcon,
+        DocumentTextIcon,
         User,
         Modal,
         Toast

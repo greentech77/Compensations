@@ -85,6 +85,18 @@ export default {
                         return undefined
                     }
                     return this.$t(value ?? '')
+                case 'percent':
+                    if (value == null || value === '') {
+                        return undefined
+                    }
+                    const numValue = parseFloat(value);
+                    return !isNaN(numValue) ? numValue.toFixed(2).replace('.', ',') + ' %' : undefined
+                case 'currency':
+                    if (value == null || value === '') {
+                        return undefined
+                    }
+                    const currValue = parseFloat(value);
+                    return !isNaN(currValue) ? currValue.toFixed(2).replace('.', ',') + ' €' : undefined
                 default:
                     return value
             }

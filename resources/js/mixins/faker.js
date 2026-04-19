@@ -1,6 +1,8 @@
-import * as faker from 'faker/locale/sk'; // si locale ni na voljo / sk je najbrž ok
+// Faker se uporablja samo za generične podatke (UUID, datumi, finance, boolean)
+// ki niso odvisni od locale-ja. Vsi locale-specifični podatki (imena, mesta, naslovi)
+// se generirajo z custom slovenskimi funkcijami (slovenianFaker)
+import * as faker from 'faker';
 import { merge, sample } from 'lodash'
-import { fake } from 'faker';
 import { isThisSecond } from 'date-fns';
 
 const password = 'aaaaaa1!A'
@@ -10,6 +12,65 @@ const email = 'gregakop@gmail.com'
 const validEnv = true
 
 //console.log(process.env.MIX_APP_ENV);
+
+// Slovenski podatki za faker
+const slovenianData = {
+    firstNames: ['Janez', 'Marija', 'Franc', 'Ana', 'Anton', 'Maja', 'Marko', 'Irena', 'Peter', 'Nina', 'Luka', 'Sara', 'Tomaž', 'Katja', 'Andrej', 'Mojca', 'Bojan', 'Tanja', 'Gregor', 'Nataša', 'Rok', 'Petra', 'Simon', 'Mojca', 'Matjaž', 'Alenka'],
+    lastNames: ['Novak', 'Horvat', 'Kovačič', 'Krajnc', 'Zupančič', 'Potočnik', 'Kos', 'Vidmar', 'Golob', 'Turk', 'Petek', 'Koren', 'Zupan', 'Hribar', 'Kovač', 'Krajnc', 'Mlakar', 'Klemenčič', 'Žnidaršič', 'Kavčič', 'Medved', 'Kobal', 'Jereb', 'Korošec'],
+    cities: ['Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Velenje', 'Koper', 'Novo Mesto', 'Ptuj', 'Trbovlje', 'Kamnik', 'Nova Gorica', 'Jesenice', 'Murska Sobota', 'Domžale', 'Škofja Loka', 'Izola', 'Kočevje', 'Postojna', 'Logatec', 'Vrhnika', 'Slovenj Gradec', 'Krško', 'Brežice', 'Sežana'],
+    streetTypes: ['Ulica', 'Cesta', 'Trg', 'Pot', 'Cesta'],
+    companyNames: ['TEHNIKA', 'SISTEMI', 'SOLUTIONS', 'SERVIS', 'TRADE', 'GROUP', 'HOLDING', 'INDUSTRIJA', 'PROIZVODNJA', 'STORITVE'],
+    companyTypes: ['TRGOVINA', 'PRODAJA', 'STORITVE', 'PROIZVODNJA', 'INŽENIRING', 'KONSULTING', 'LOGISTIKA', 'MARKETING'],
+    companySuffixes: ['D.O.O.', 'D.D.', 'S.P.', 'S.R.O.', 'D.N.O.'],
+    banks: ['Nova Ljubljanska banka', 'Banka Slovenije', 'Unicredit Banka', 'SKB Banka', 'Abanka', 'Gorenjska banka', 'Banka Intesa Sanpaolo'],
+    bankBICs: ['LJUB', 'MARI', 'KOPE', 'CELJ', 'KRAN']
+}
+
+// Helper funkcije za slovenske podatke
+const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
+
+const slovenianFaker = {
+    firstName: () => getRandomElement(slovenianData.firstNames),
+    lastName: () => getRandomElement(slovenianData.lastNames),
+    city: () => getRandomElement(slovenianData.cities),
+    companyName: () => {
+        const name = getRandomElement(slovenianData.companyNames)
+        const type = getRandomElement(slovenianData.companyTypes)
+        const suffix = getRandomElement(slovenianData.companySuffixes)
+        return `${name} ${type} ${suffix}`
+    },
+    streetAddress: () => {
+        const streetType = getRandomElement(slovenianData.streetTypes)
+        const lastName = getRandomElement(slovenianData.lastNames)
+        const number = randomInt(1, 200)
+        return `${streetType} ${lastName} ${number}`
+    },
+    phoneNumber: () => {
+        const areaCodes = ['01', '02', '03', '04', '05', '07']
+        const areaCode = getRandomElement(areaCodes)
+        const number = randomInt(100000, 999999)
+        return `${areaCode} ${number.toString().slice(0, 3)} ${number.toString().slice(3)}`
+    },
+    mobileNumber: () => {
+        const prefix = randomInt(30, 70)
+        const number = randomInt(100000, 999999)
+        return `0${prefix} ${number.toString().slice(0, 3)} ${number.toString().slice(3)}`
+    },
+    bankName: () => getRandomElement(slovenianData.banks) + ' D.D.',
+    bankBIC: () => {
+        const prefix = getRandomElement(slovenianData.bankBICs)
+        return `${prefix}SI2X`
+    },
+    email: (firstName, lastName) => {
+        const domains = ['gmail.com', 'outlook.com', 'siol.net', 't-2.net', 'arnes.si']
+        const name = (firstName || slovenianFaker.firstName()).toLowerCase()
+        const surname = (lastName || slovenianFaker.lastName()).toLowerCase()
+        const domain = getRandomElement(domains)
+        const number = randomInt(1, 99)
+        return `${name}.${surname}${number}@${domain}`
+    }
+}
 
 /**
  * Generira fake podatke samo če so izpolnjeni določeni pogoji.
@@ -53,27 +114,27 @@ function bypassConditions(form, generator) {
 }
 
 const fakeAddressString = function () {
-    return `${faker.address.streetName()} ${Math.ceil(Math.random() + 100)}`
+    return slovenianFaker.streetAddress()
 }
 
 const fakeAddress = function (form) {
     form.address = fakeAddressString()
-    form.postNum = 1000
-    form.postTown = faker.address.city()
+    form.postNum = randomInt(1000, 9999)
+    form.postTown = slovenianFaker.city()
 }
 
 const fakeBankAccount = function(form) {
     // form.IBAN = 'SI56010000003700051'
     form.IBAN = 'SI560100' + Array.from(Array(11), () => Math.floor(Math.random() * 10)).join('')
-    form.BIC = faker.finance.bic()
-    form.name = faker.company.companyName()
+    form.BIC = slovenianFaker.bankBIC()
+    form.name = slovenianFaker.companyName()
     form.address = fakeAddressString()
 }
 
 // Function to generate a single entity
 const generateEntity = () => ({
-    id: faker.string.uuid(),
-    name: faker.company.name()
+    id: faker.datatype.uuid(),
+    name: slovenianFaker.companyName()
   });
 
 const formatPercent = (value) => {
@@ -105,19 +166,22 @@ const fakeRegisterDataMixin = (() => {
             fakeData(form) {
                 form = form || this.form
                 bypassConditions(form, form => {
-                    form.companyName = faker.company.companyName()
+                    const firstName = slovenianFaker.firstName()
+                    const lastName = slovenianFaker.lastName()
+                    
+                    form.companyName = slovenianFaker.companyName()
                     form.vatNum = `SI${validTaxNumber()}`
                     form.registrationNum = `${validTaxNumber()}`
-                    form.name = faker.name.firstName()
-                    form.lastname = faker.name.lastName()
-                    form.email = faker.internet.email()
-                    form.phone = faker.phone.phoneNumber()
+                    form.name = firstName
+                    form.lastname = lastName
+                    form.email = slovenianFaker.email(firstName, lastName)
+                    form.phone = slovenianFaker.phoneNumber()
                     form.address = fakeAddressString()
-                    form.postNum = 1000
-                    form.postTown = faker.address.city()
+                    form.postNum = randomInt(1000, 9999)
+                    form.postTown = slovenianFaker.city()
                     form.bankAccount = 'SI560100' + Array.from(Array(11), () => Math.floor(Math.random() * 10)).join('')
-                    form.bankBIC = faker.finance.bic()
-                    form.bankName = faker.company.companyName()
+                    form.bankBIC = slovenianFaker.bankBIC()
+                    form.bankName = slovenianFaker.bankName()
                 })
             }
         }
@@ -152,10 +216,10 @@ const fakeCompensationDataMixin = (() => {
             bypassConditions(form, form => {
 
                 // Generate multiple entities (between 1-5)
-                const entitiesCount = faker.datatype.number({ min: 1, max: 5 });
+                const entitiesCount = randomInt(1, 5);
                 const compenzationEntities = Array.from({ length: entitiesCount }, () => ({
                     id: faker.datatype.uuid(),
-                    name: faker.company.companyName()
+                    name: slovenianFaker.companyName()
                 }));
 
                 console.log(entitiesCount);

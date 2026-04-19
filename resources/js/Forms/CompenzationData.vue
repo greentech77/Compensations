@@ -21,27 +21,36 @@
           <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.compenzationCommission" label="Provizija" :error="form.errors.compenzationCommission" @change="form.clearErrors('compenzationCommission')" />
       </div>
 
-        <div class="flex justify-end space-x-4" v-for="(component, index) in components" :key="index">
+        <!-- Entities selection -->
+        <div v-for="(component, index) in components" :key="index" class="flex space-x-4 items-end">
           <InputGroup 
-            class="w-full md:w-1/2 flex-auto text-left" 
+            class="flex-1" 
             type="select" 
-            :key="index" 
             :name="'compenzationEntities[' + index + ']'" 
-            :options="entitiesOptions" 
+            :options="getAvailableOptions(index)" 
             v-model="component.data.compenzationEntity.value" 
             label="Stranka" 
             :error="form.errors['compenzationEntities.' + index]"
             @change="clearDynamicError(index, 'compenzationEntity')"/>
+          
+          <!-- Button to remove an entity (if more than one exists) -->
           <Button 
-            class="md:w-1/4 flex-auto button--stone h-10 mt-7" 
-            :key="index" 
-            @click="addComponent" 
-            :loading="form.processing">Dodaj stranko</Button>
-          <Button v-if="index > 0"
-            class="md:w-1/4 flex-auto button--danger h-10 mt-7" 
-            :key="index" 
+            v-if="index > 0"
+            class="button button--danger h-10 mb-0.5" 
             @click="removeComponent(index)" 
-            :loading="form.processing">Odstrani stranko</Button>
+            :loading="form.processing">
+            Odstrani
+          </Button>
+        </div>
+
+        <!-- Button to add a new entity -->
+        <div v-if="hasAvailableEntities" class="flex justify-start">
+          <Button 
+            class="button button--stone" 
+            @click="addComponent" 
+            :loading="form.processing">
+            Dodaj stranko
+          </Button>
         </div>
       </section>
   
@@ -80,6 +89,7 @@
     data() {
       return {
         entitiesOptions: [],
+        allEntitiesOptions: [], // Shrani vse možnosti
         select_entity: 'Izberi stranko',
         components: [
           { 
@@ -89,21 +99,112 @@
         ],
       }
     },
+    beforeMount() {
+      // Počisti localStorage PRED vsem - najzgodneje možno
+      localStorage.removeItem('components');
+    },
+    created() {
+      // Počisti localStorage PRED vsem
+      localStorage.removeItem('components');
+      // Resetiraj komponente že ob kreiranju komponente - pokliči clearComponents()
+      this.clearComponents();
+    },
     async mounted() {
+      // Počisti localStorage, da se ne naložijo stare komponente
+      localStorage.removeItem('components');
+      
+      // Vedno začni z eno komponento - pokliči clearComponents()
+      this.clearComponents();
+      
       const { data: response } = await axios.get(route('admin.api.entities'))
-      this.entitiesOptions = response.data.map(item => {
+      // Prikaži vse stranke
+      this.allEntitiesOptions = response.data.map(item => {
         return {
           label: item.company_name,
-          key: item.id,
-          default_value: 1
+          key: item.id
         }
       });
+      this.entitiesOptions = [...this.allEntitiesOptions];
+
+      // Nastavi prvo podjetje kot privzeto izbrano v prvem dropdown-u
+      if (this.allEntitiesOptions.length > 0 && this.components.length > 0) {
+        this.components[0].data.compenzationEntity.value = this.allEntitiesOptions[0];
+      }
 
       console.log('Entity Options:', this.entitiesOptions);
-
-      this.loadComponents();
+      console.log('Components after mount:', this.components.length);
+      
+      // Počisti localStorage tudi po naložitvi - z zamudo, da se zagotovi, da se počisti
+      setTimeout(() => {
+        // Pokliči clearComponents() za zagotovitev, da se komponente resetirajo
+        this.clearComponents();
+        // Po čiščenju ponovno nastavi prvo podjetje
+        if (this.allEntitiesOptions.length > 0 && this.components.length > 0) {
+          this.components[0].data.compenzationEntity.value = this.allEntitiesOptions[0];
+        }
+      }, 100);
+    },
+    computed: {
+      // Vrne seznam že izbranih podjetij (njihove key-e)
+      selectedEntityKeys() {
+        return this.components
+          .map(component => component.data.compenzationEntity.value?.key)
+          .filter(key => key !== undefined && key !== null && key !== '');
+      },
+      // Preveri, ali so še na voljo neizbrane stranke
+      hasAvailableEntities() {
+        return this.selectedEntityKeys.length < this.allEntitiesOptions.length;
+      }
     },
     methods: {
+      // Vrne razpoložljive možnosti za določen dropdown (izključi že izbrana podjetja)
+      getAvailableOptions(currentIndex) {
+        const currentValue = this.components[currentIndex]?.data.compenzationEntity.value;
+        const currentKey = currentValue?.key;
+        
+        return this.allEntitiesOptions.filter(option => {
+          // Vključi trenutno izbrano vrednost v tem dropdown-u
+          if (option.key === currentKey) {
+            return true;
+          }
+          // Izključi vse druge že izbrane vrednosti
+          return !this.selectedEntityKeys.includes(option.key);
+        });
+      },
+      // Override fakeData metodo iz mixina za izbiro pravih podjetij iz baze
+      fakeData() {
+        // Kliči originalno fakeData metodo za ostale podatke
+        const originalFakeData = this.$options.mixins
+          .find(m => m.methods && m.methods.fakeData)
+          ?.methods.fakeData;
+        
+        if (originalFakeData) {
+          originalFakeData.call(this, this.form);
+        }
+        
+        // Izberi random število podjetij (1 do maksimalno število razpoložljivih)
+        const maxEntities = Math.min(5, this.allEntitiesOptions.length);
+        const entitiesCount = Math.floor(Math.random() * maxEntities) + 1;
+        
+        // Izberi random podjetja iz razpoložljivih
+        const shuffled = [...this.allEntitiesOptions].sort(() => 0.5 - Math.random());
+        const selectedEntities = shuffled.slice(0, entitiesCount);
+        
+        // Počisti obstoječe komponente
+        this.components = [];
+        
+        // Dodaj komponente za vsako izbrano podjetje
+        selectedEntities.forEach((entity, index) => {
+          this.components.push({
+            type: 'InputGroup',
+            data: { 
+              compenzationEntity: { value: entity }, 
+              errors: { compenzationEntity: '' }, 
+              processing: false 
+            }
+          });
+        });
+      },
       onSubmit() {
         // Collect the dynamic data
         const dynamicEntities = this.components.map(component => component.data.compenzationEntity.value);
@@ -130,6 +231,8 @@
           _error_bag: 'CreateCompenzation',
           data: formData,
           onSuccess: () => {
+            // Počisti localStorage po uspešni validaciji
+            localStorage.removeItem('components');
             this.onComplete()
           },
         });
@@ -151,33 +254,26 @@
       },
           
     addComponent() {
-
-    //const defaultEntity = this.entitiesOptions.length > 0 ? this.entitiesOptions[0].key : '';
-
+    // Dodaj novo komponento
+    const newIndex = this.components.length;
     this.components.push(
     { 
         type: 'InputGroup', 
         data: { compenzationEntity: { value: '' }, errors: { compenzationEntity: '' }, processing: false }
     });
-
-    this.saveComponents();
     
+    // Počakaj, da se komponenta doda, nato nastavi prvo razpoložljivo podjetje
+    this.$nextTick(() => {
+      const availableOptions = this.getAvailableOptions(newIndex);
+      if (availableOptions.length > 0) {
+        this.components[newIndex].data.compenzationEntity.value = availableOptions[0];
+      }
+    });
+    // NE shranjuj v localStorage - komponente se ne smejo shranjevati
     },
 
     removeComponent(index) {
         this.components.splice(index, 1);
-        this.saveComponents();
-    },
-
-    saveComponents() {
-        localStorage.setItem('components', JSON.stringify(this.components));
-    },
-
-    loadComponents() {
-        const savedComponents = localStorage.getItem('components');
-        if (savedComponents) {
-            this.components = JSON.parse(savedComponents);
-        }
     },
 
     clearComponents() {
@@ -185,16 +281,34 @@
             this.components[0].data.compenzationEntity.value = '';
             this.components = this.components.slice(0, 1);
         }
-        this.saveComponents();
+        // Počisti localStorage ob ročnem čiščenju
+        localStorage.removeItem('components');
     }
     },
     watch: {
+        // Prepreči shranjevanje komponent v localStorage in resetiraj, če se naložijo
         components: {
-            handler() {
-                this.saveComponents();
+            handler(newVal, oldVal) {
+                // Preveri, ali se komponente naložijo iz localStorage
+                const savedComponents = localStorage.getItem('components');
+                if (savedComponents && newVal.length > 1) {
+                    // Če se komponente naložijo iz localStorage, jih resetiraj
+                    setTimeout(() => {
+                        localStorage.removeItem('components');
+                        if (this.components.length > 1) {
+                            this.components = [
+                                { 
+                                    type: 'InputGroup', 
+                                    data: { compenzationEntity: { value: '' }, errors: { compenzationEntity: '' }, processing: false } 
+                                }
+                            ];
+                        }
+                    }, 10);
+                }
             },
             deep: true,
-        },
+            immediate: false
+        }
     },
   }
   </script>

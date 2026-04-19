@@ -30,8 +30,8 @@ class CreateEntitiesTable extends Migration
             $table->char('fax', 20)->nullable();
             $table->char('mobile', 20)->nullable();
             $table->char('phone', 20);
-            $table->boolean('show_email')->nullable()->dafault(1);
-            $table->boolean('show_fax')->nullable()->dafault(1);
+            $table->boolean('show_email')->nullable()->default(1);
+            $table->boolean('show_fax')->nullable()->default(1);
             $table->timestamps();
         });
     }

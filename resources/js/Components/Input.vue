@@ -77,6 +77,7 @@
 <script>
 import Date from '@/Components/Date.vue'
 import Select from '@/Components/Select.vue'
+import Combobox from '@/Components/Combobox.vue'
 import FormattedInput from '@/Components/FormattedInput.vue'
 import PercentInput from '@/Components/PercentInput.vue'
 
@@ -84,6 +85,7 @@ export default {
     components: {
         Date,
         Select,
+        Combobox,
         FormattedInput,
         PercentInput
     },
@@ -99,11 +101,14 @@ export default {
         disabled: Boolean
     },
 
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'query-change'],
 
     methods: {
         focus() {
             this.$refs.input.focus()
+        },
+        onQueryChange(query) {
+            this.$emit('query-change', query)
         }
     },
 
