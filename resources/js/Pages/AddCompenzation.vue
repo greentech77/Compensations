@@ -23,7 +23,7 @@
 <script>
 import MainRegisterBlock from '@/Layouts/MainRegisterBlock.vue'
 import AdminLayout from '@/Layouts/AdminLayout'
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head } from '@inertiajs/vue3';
 import SteppedForm from '@/Forms/SteppedForm.vue'
 import CompenzationData from '@/Forms/CompenzationData.vue'
 import CompenzationFinish from '@/Forms/CompenzationFinish.vue'

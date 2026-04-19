@@ -70,7 +70,7 @@ import Checkbox from '@/Components/Checkbox.vue'
 import Input from '@/Components/Input.vue'
 import Label from '@/Components/Label.vue'
 import InputGroup from '@/Components/InputGroup.vue';
-import { Head, Link } from '@inertiajs/inertia-vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 
 export default {

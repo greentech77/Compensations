@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/inertia-vue3'
+import { Link } from '@inertiajs/vue3'
 import Sidebar from '@/Layouts/Sidebar.vue'
 import MainBlock from '@/Layouts/MainBlock.vue'
 import { ChevronRightIcon, HomeIcon, UserIcon, DocumentReportIcon, ChartPieIcon, OfficeBuildingIcon, CurrencyEuroIcon } from '@heroicons/vue/outline';

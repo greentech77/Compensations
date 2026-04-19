@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { Head, Link } from '@inertiajs/inertia-vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import InputGroup from '@/Components/InputGroup.vue'
 import { PencilAltIcon } from '@heroicons/vue/outline';

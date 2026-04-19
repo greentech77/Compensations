@@ -1,4 +1,4 @@
-import { Inertia } from '@inertiajs/inertia'
+import { router } from '@inertiajs/vue3'
 
 export default {
 
@@ -9,7 +9,7 @@ export default {
     },
 
     created() {
-        Inertia.on('navigate', (event) => {
+        router.on('navigate', (event) => {
             this.currentRoute = this.route().current()
         })
     },

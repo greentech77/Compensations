@@ -27,7 +27,7 @@
 
 <script>
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
-import { Inertia } from '@inertiajs/inertia'
+import { router } from '@inertiajs/vue3'
 
 export default {
 
@@ -43,7 +43,7 @@ export default {
     },
 
     mounted() {
-        Inertia.on('start', (event) => {
+        router.on('start', (event) => {
             this.toggleMenu(false)
         })
     },
