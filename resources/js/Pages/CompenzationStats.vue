@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head } from '@inertiajs/vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import Button from '@/Components/Button.vue'
 import Input from '@/Components/Input.vue'

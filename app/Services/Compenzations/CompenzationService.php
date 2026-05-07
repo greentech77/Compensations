@@ -24,9 +24,26 @@ class CompenzationService {
         $this->calculationsService = $calculationsService;
     }
 
-    public function compenzations(?string $search = null, ?string $dateFrom = null, ?string $dateTo = null) 
-    {
-        $query = Compenzation::with(['realizationAgreement', 'implementationAgreement']);
+    /**
+     * Sortable columns whitelist for the compenzations listing.
+     * Keys are the values exposed to the frontend; values are the actual DB columns.
+     */
+    public const SORTABLE_COLUMNS = [
+        'name' => 'name',
+        'date' => 'date',
+    ];
+
+    public const DEFAULT_SORT = 'date';
+    public const DEFAULT_DIRECTION = 'asc';
+
+    public function compenzations(
+        ?string $search = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null,
+        ?string $sort = null,
+        ?string $direction = null
+    ) {
+        $query = Compenzation::with(['realizationAgreement', 'implementationAgreement', 'proposal']);
 
         if ($search) {
             $query->where(function ($builder) use ($search) {
@@ -50,8 +67,18 @@ class CompenzationService {
         if ($dateTo) {
             $query->whereDate('date', '<=', Carbon::parse($dateTo)->format('Y-m-d'));
         }
-        
-        return $query->orderBy('date', 'desc')->paginate(7);
+
+        $sortKey = array_key_exists($sort, self::SORTABLE_COLUMNS) ? $sort : self::DEFAULT_SORT;
+        $sortColumn = self::SORTABLE_COLUMNS[$sortKey];
+        $sortDirection = strtolower((string) $direction) === 'desc' ? 'desc' : 'asc';
+
+        // Stable secondary order so rows with equal primary keys (e.g. same date)
+        // keep a deterministic order across pages.
+        return $query
+            ->orderBy($sortColumn, $sortDirection)
+            ->orderBy('id', $sortDirection)
+            ->paginate(7)
+            ->withQueryString();
     }
 
     public function compenzation($id)

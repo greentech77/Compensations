@@ -111,9 +111,20 @@
 
                 <!-- PDF Download Section -->
                 <section class="bg-white rounded-md p-6 filter drop-shadow">
-                    <h2 class="text-lg font-medium mb-4">Prenos PDF dokumentov</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium">Prenos PDF dokumentov</h2>
+                        <Button
+                            v-if="!hasAllPdfs"
+                            type="button"
+                            class="button button--stone text-sm !py-1 !px-4"
+                            :loading="regenerating"
+                            @click="regeneratePdfs"
+                        >
+                            Regeneriraj PDF dokumente
+                        </Button>
+                    </div>
                     <div class="flex flex-wrap gap-3">
-                        <a 
+                        <a
                             v-if="compenzation.proposal && compenzation.proposal.file_path"
                             :href="route('compenzations.compenzation.pdf.download', { 
                                 id: compenzation.id, 
@@ -123,7 +134,7 @@
                             title="Prenos kompenzacije"
                         >
                             <DownloadIcon class="h-5 w-5 mr-2"/>
-                            Kompenzacija
+                            Predlog kompenzacije
                         </a>
                         <a 
                             v-if="compenzation.implementation_agreement && compenzation.implementation_agreement.file_path"
@@ -150,7 +161,7 @@
                             Pogodba o unovčenju
                         </a>
                         <div v-if="!hasAnyPdf" class="text-gray-500 text-sm">
-                            Ni generiranih PDF dokumentov.
+                            Ni generiranih PDF dokumentov. Klikni gumb "Regeneriraj PDF dokumente" zgoraj.
                         </div>
                     </div>
                 </section>
@@ -215,7 +226,8 @@ export default {
         return {
             ...data,
             entitiesOptions: [],
-            allEntitiesOptions: [] // Store all available entities
+            allEntitiesOptions: [], // Store all available entities
+            regenerating: false
         }
     },
     async mounted() {
@@ -245,6 +257,15 @@ export default {
             return (this.compenzation.proposal && this.compenzation.proposal.file_path) ||
                    (this.compenzation.implementation_agreement && this.compenzation.implementation_agreement.file_path) ||
                    (this.compenzation.realization_agreement && this.compenzation.realization_agreement.file_path);
+        },
+        // Whether all expected PDFs are present
+        hasAllPdfs() {
+            const proposal = this.compenzation.proposal && this.compenzation.proposal.file_path
+            const implAgr = this.compenzation.implementation_agreement
+            const realAgr = this.compenzation.realization_agreement
+            const implOk = !implAgr || !implAgr.id || implAgr.file_path
+            const realOk = !realAgr || !realAgr.id || realAgr.file_path
+            return Boolean(proposal && implOk && realOk)
         }
     },
 
@@ -302,6 +323,15 @@ export default {
 
         removeComponent(index) {
             this.formdata.form.entities.splice(index, 1);
+        },
+
+        regeneratePdfs() {
+            if (this.regenerating) return
+            this.regenerating = true
+            this.$inertia.post(this.route('compenzations.compenzation.pdf.regenerate', { id: this.compenzation.id }), {}, {
+                preserveScroll: true,
+                onFinish: () => { this.regenerating = false }
+            })
         },
 
         dateFormat,

@@ -19,7 +19,7 @@ class PDFService {
             'default_font' => 'dejavusans',
             'margin_left' => 22,
             'margin_right' => 22,
-            'margin_top' => 35,
+            'margin_top' => 12,
             'margin_bottom' => 20,
             'margin_header' => 0,
             'setAutoBottomMargin' => 'pad',

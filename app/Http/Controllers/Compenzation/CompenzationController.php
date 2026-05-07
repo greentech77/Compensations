@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Log;
 use App\Validation\Validation;
 use App\Models\Compenzation;
+use App\Services\Compenzations\CompenzationPdfService;
 use App\Services\Compenzations\CompenzationService;
 use App\Services\Compenzations\CompenzationStatsService;
 use App\Services\Compenzations\Events\AddCompenzationEvent;
@@ -31,18 +32,35 @@ class CompenzationController extends Controller
         $search = $request->input('search');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
-        
-        $compenzations = $compenzationsService->compenzations($search, $dateFrom, $dateTo);
 
-        //dd($compenzations);
+        $sort = $request->input('sort');
+        $direction = $request->input('direction');
+
+        // Normalize against the service whitelist so the frontend always
+        // receives the effective sort that was actually applied.
+        $effectiveSort = array_key_exists($sort, CompenzationService::SORTABLE_COLUMNS)
+            ? $sort
+            : CompenzationService::DEFAULT_SORT;
+        $effectiveDirection = strtolower((string) $direction) === 'desc' ? 'desc' : 'asc';
+
+        $compenzations = $compenzationsService->compenzations(
+            $search,
+            $dateFrom,
+            $dateTo,
+            $effectiveSort,
+            $effectiveDirection
+        );
+
         return Inertia::render('Compenzations', [
-            'compenzations' =>$compenzations,
+            'compenzations' => $compenzations,
             'filters' => [
                 'search' => $search,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
+                'sort' => $effectiveSort,
+                'direction' => $effectiveDirection,
             ],
-            'breadcrumb' =>[
+            'breadcrumb' => [
                 [
                     'label' => 'Kompenzacije',
                 ]
@@ -133,7 +151,7 @@ class CompenzationController extends Controller
         return redirect()->route('compenzations')->with([
             'modal' => [
                 'title' => __('modals.compenzation.title'),
-                'content' => __('modals.compenzation.success'),
+                'content' => $compenzation->name . ' dodana.',
                 'status' => 'success',
                 'actions' => [[
                     'action' => [
@@ -154,39 +172,80 @@ class CompenzationController extends Controller
         return redirect()->back();
     }
 
-    public function downloadCompenzationPdf(Request $request, $id, $type)
+    public function downloadCompenzationPdf(Request $request, CompenzationPdfService $pdfs, $id, $type)
     {
+        if (!in_array($type, ['proposal', 'implementation', 'realization'], true)) {
+            abort(404, 'Invalid PDF type');
+        }
+
         $compenzation = Compenzation::with([
             'proposal',
             'implementationAgreement',
-            'realizationAgreement'
+            'realizationAgreement',
+            'compenzationEntity.entity',
         ])->findOrFail($id);
 
-        $filePath = null;
-        $fileName = null;
-
-        switch ($type) {
-            case 'proposal':
-                $filePath = $compenzation->proposal->file_path ?? null;
-                $fileName = $compenzation->proposal->file_name ?? "kompenzacija{$id}.pdf";
-                break;
-            case 'implementation':
-                $filePath = $compenzation->implementationAgreement->file_path ?? null;
-                $fileName = $compenzation->implementationAgreement->file_name ?? "pogodba_o_izvedbi{$id}.pdf";
-                break;
-            case 'realization':
-                $filePath = $compenzation->realizationAgreement->file_path ?? null;
-                $fileName = $compenzation->realizationAgreement->file_name ?? "pogodba_o_unovcenju{$id}.pdf";
-                break;
-            default:
-                abort(404, 'Invalid PDF type');
+        // Resolve the path; if the file is missing on disk, the service
+        // will (re)generate it on the fly and persist it for next time.
+        try {
+            $filePath = $pdfs->resolvePath($compenzation, $type);
+        } catch (\Throwable $e) {
+            Log::error("On-demand PDF generation failed for compenzation {$id} ({$type}): ".$e->getMessage());
+            abort(500, 'PDF dokument ni na voljo. Poskusite znova ali stopite v stik s podporo.');
         }
 
         if (!$filePath || !Storage::disk('local')->exists($filePath)) {
             abort(404, 'PDF file not found');
         }
 
+        $defaultName = match ($type) {
+            'proposal' => "kompenzacija{$id}.pdf",
+            'implementation' => "pogodba_o_izvedbi{$id}.pdf",
+            'realization' => "pogodba_o_unovcenju{$id}.pdf",
+        };
+
+        $fileName = match ($type) {
+            'proposal' => $compenzation->proposal->file_name ?? $defaultName,
+            'implementation' => $compenzation->implementationAgreement->file_name ?? $defaultName,
+            'realization' => $compenzation->realizationAgreement->file_name ?? $defaultName,
+        };
+
         return Storage::disk('local')->download($filePath, $fileName);
+    }
+
+    /**
+     * Force-regenerate all three PDFs for a single compenzation.
+     */
+    public function regeneratePdfs(Request $request, CompenzationPdfService $pdfs, $id)
+    {
+        $compenzation = Compenzation::with([
+            'proposal',
+            'implementationAgreement',
+            'realizationAgreement',
+            'compenzationEntity.entity',
+        ])->findOrFail($id);
+
+        try {
+            $pdfs->generateAll($compenzation);
+
+            return redirect()->back()->with([
+                'modal' => [
+                    'title' => 'PDF dokumenti',
+                    'content' => 'PDF dokumenti so bili uspešno regenerirani.',
+                    'status' => 'success',
+                    'actions' => [[
+                        'action' => ['type' => 'close'],
+                        'text' => __('modals.common.confirm'),
+                    ]],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("Manual PDF regeneration failed for compenzation {$id}: ".$e->getMessage());
+
+            return redirect()->back()->withErrors([
+                'pdf' => 'Regeneracija PDF dokumentov ni uspela. Poskusite znova.',
+            ]);
+        }
     }
 
     public function stats(Request $request, CompenzationStatsService $compenzationStatsService)
@@ -418,7 +477,11 @@ class CompenzationController extends Controller
         $dom->formatOutput = true;
         $dom->loadXML($xml->asXML());
 
-        return Response::make($dom->saveXML(), 200, [
+        $xmlContent = $dom->saveXML();
+
+        Storage::disk('local')->put(\App\Http\Controllers\ExportController::COMPENZATIONS_EXPORT_DIR.'/'.$filename, $xmlContent);
+
+        return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);

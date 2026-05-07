@@ -8,127 +8,134 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 11px;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 30px 40px;
+            padding: 6px 40px 16px 40px;
         }
         .company-header {
-            display: table;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 6px;
+            border-collapse: collapse;
         }
         .header-logo {
-            display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             width: 120px;
             padding-top: 0;
+            text-align: left;
+            padding-right: 10px;
         }
         .header-logo img {
             max-width: 100px;
             height: auto;
             display: block;
-            vertical-align: middle;
+            vertical-align: top;
         }
         .header-text {
-            display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             text-align: right;
             font-size: 11px;
             line-height: 1.4;
             padding-top: 0;
         }
-        .header-text h2 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            font-weight: bold;
-        }
         .header-text p {
-            margin: 2px 0;
+            margin: 0 0 2px 0;
             font-size: 10px;
         }
         .header-line {
             border-bottom: 1px solid #000;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            padding-bottom: 3px;
         }
         .parties-section {
-            margin: 30px 0;
-            line-height: 1.8;
+            margin: 14px 0;
+            line-height: 1.6;
             text-align: left;
         }
         .party-info {
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
         .party-separator {
             text-align: left;
-            margin: 10px 0;
+            margin: 4px 0;
         }
         .contract-title {
             text-align: left;
             font-weight: bold;
-            font-size: 12px;
-            margin: 30px 0;
+            font-size: 11px;
+            margin: 12px 0;
         }
         .article {
-            margin: 20px 0;
-            line-height: 1.8;
+            margin: 8px 0;
+            line-height: 1.5;
             text-align: left;
+        }
+        .article p {
+            margin: 3px 0;
         }
         .article-title {
             font-weight: bold;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 3px;
         }
-        .signature-section {
-            margin-top: 60px;
-            display: table;
+        .signature-table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
         }
-        .signature-left {
-            display: table-cell;
+        .signature-table td {
             width: 50%;
+            vertical-align: top;
+            padding: 0;
+        }
+        .sig-left {
             text-align: left;
-            vertical-align: top;
         }
-        .signature-right {
-            display: table-cell;
-            width: 50%;
+        .sig-right {
             text-align: right;
-            vertical-align: top;
-            padding-left: 20px;
         }
-        .signature-line {
-            margin-top: 40px;
+        .sig-label {
+            font-weight: bold;
         }
-        .stamp {
-            text-align: right;
-            margin-top: 10px;
+        .sig-space {
+            height: 50px;
         }
         .stamp img {
             max-width: 150px;
             height: auto;
         }
         .date-location {
-            margin: 30px 0;
+            margin: 12px 0;
             text-align: left;
         }
     </style>
 </head>
 <body>
+    @php
+        $pdfLogoPath = public_path('images/pdf/logo.jpg');
+        $lastEntity = optional($compenzation->compenzationEntity->last())->entity;
+        $amount = (float)$compenzation->amount;
+        $commission = $amount * (((float)($agreement->commission ?? 8)) / 100);
+        $vatRate = 0.22;
+        $vatAmount = $commission * $vatRate;
+        $totalCommission = $commission + $vatAmount;
+        $transferAmount = $amount - $totalCommission;
+        $accountNumber = $lastEntity ? ($lastEntity->bank_account ?? '06382 0133110880') : '06382 0133110880';
+    @endphp
     {{-- Company Header with Logo --}}
-    <div class="company-header">
-        <div class="header-logo">
-            <img src="{{ public_path('images/pdf/logo.jpg') }}" alt="Logo">
-        </div>
-        <div class="header-text">
-            <h2>KORENJAK Finančno svetovanje</h2>
+    <table class="company-header">
+        <tr>
+        <td class="header-logo">
+            <img src="{{ $pdfLogoPath }}" alt="Logo">
+        </td>
+        <td class="header-text">
             <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
             <p>Email: matevz.korenjak@kompenzacije.eu</p>
             <p>Telefon: 031 227 139, Faks: 08 288 00 77</p>
-            <p><strong>SI98789309</strong></p>
-        </div>
-    </div>
+            <p>SI98789309</p>
+        </td>
+        </tr>
+    </table>
     <div class="header-line"></div>
 
     <div class="parties-section">
@@ -137,13 +144,10 @@
             ID DDV:SI98789309 (v nadaljevanju <strong>prevzemnik</strong>)
         </div>
         <div class="party-separator">in</div>
-        @php
-            $lastEntity = $compenzation->compenzationEntity->last();
-        @endphp
-        @if($lastEntity && $lastEntity->entity)
+        @if($lastEntity)
         <div class="party-info">
-            <strong>{{ strtoupper($lastEntity->entity->company_name) }}</strong> {{ $lastEntity->entity->address }}, {{ $lastEntity->entity->post_num }} {{ $lastEntity->entity->post_town }}<br>
-            ID DDV:{{ $lastEntity->entity->vat_num }} (v nadaljevanju <strong>odstopnik</strong>)
+            <strong>{{ strtoupper($lastEntity->company_name) }}</strong> {{ $lastEntity->address }}, {{ $lastEntity->post_num }} {{ $lastEntity->post_town }}<br>
+            ID DDV:{{ $lastEntity->vat_num }} (v nadaljevanju <strong>odstopnik</strong>)
         </div>
         @endif
     </div>
@@ -169,23 +173,11 @@
 
     <div class="article">
         <div class="article-title">4. člen</div>
-        @php
-            $amount = (float)$compenzation->amount;
-            $commissionRate = (float)($agreement->commission ?? 8);
-            $commission = $amount * ($commissionRate / 100);
-            $vatRate = 0.22;
-            $vatAmount = $commission * $vatRate;
-            $totalCommission = $commission + $vatAmount;
-        @endphp
-        <p>Kot plačilo za opravljeno storitev unovčenja terjatve, zaračuna prevzemnik odstopniku {{ $commissionRate }} % provizijo obračunano od vrednosti obračunano od vrednosti iz 1. člena te pogodbe. To znaša {{ number_format($commission, 2, ',', '.') }} €. Na to vrednost se obračuna 22% DDV v znesku {{ number_format($vatAmount, 2, ',', '.') }} €. Unovčenje terjatve se praviloma izvaja postopno. Storitev in DDV se zato obračunavata v skladu s 33.členom pravilnika o izvajanju ZDDV. Kot obračunsko obdobje šteje koledarski mesec, prevzemnik pa izstavlja račune in obračunava DDV najkasneje zadnji dan v mesecu.</p>
+        <p>Kot plačilo za opravljeno storitev unovčenja terjatve, zaračuna prevzemnik odstopniku {{ (float)($agreement->commission ?? 8) }} % provizijo obračunano od vrednosti obračunano od vrednosti iz 1. člena te pogodbe. To znaša {{ number_format($commission, 2, ',', '.') }} €. Na to vrednost se obračuna 22% DDV v znesku {{ number_format($vatAmount, 2, ',', '.') }} €. Unovčenje terjatve se praviloma izvaja postopno. Storitev in DDV se zato obračunavata v skladu s 33.členom pravilnika o izvajanju ZDDV. Kot obračunsko obdobje šteje koledarski mesec, prevzemnik pa izstavlja račune in obračunava DDV najkasneje zadnji dan v mesecu.</p>
     </div>
 
     <div class="article">
         <div class="article-title">5. člen</div>
-        @php
-            $transferAmount = $amount - $totalCommission;
-            $accountNumber = $lastEntity && $lastEntity->entity ? ($lastEntity->entity->bank_account ?? '06382 0133110880') : '06382 0133110880';
-        @endphp
         <p>Prevzemnik bo obveznost plačila terjatev, ki nastane s potrditvijo vseh udeležencev predlaganega pobota poravnal z nakazilom sredstev na račun odstopnika. Znesek kupnine v višini {{ number_format($transferAmount, 2, ',', '.') }} €, ki je zmanjšan za v 4.členu dogovorjeno provizijo in za DDV, bo prevzemnik nakazoval po izvršenih pobotih na TRR: {{ $accountNumber }}</p>
     </div>
 
@@ -203,20 +195,17 @@
         V Ljubljani, {{ \Carbon\Carbon::parse($compenzation->date)->format('d.m.Y') }}
     </div>
 
-    <div class="signature-section">
-        <div class="signature-left">
-            <div class="signature-line">
-                <strong>ODSTOPNIK:</strong>
-            </div>
-        </div>
-        <div class="signature-right">
-            <div class="signature-line">
-                <strong>PREVZEMNIK:</strong> KORENJAK Finančno svetovanje MATEVŽ Korenjak
-            </div>
-            <div class="stamp">
-                <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig">
-            </div>
-        </div>
-    </div>
+    <table class="signature-table">
+        <tr>
+            <td class="sig-left">
+                <span class="sig-label">ODSTOPNIK:</span>
+                <div class="sig-space"></div>
+            </td>
+            <td class="sig-right">
+                <span class="sig-label">PREVZEMNIK:</span><br>
+                <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig" style="max-width:150px; height:auto; margin-top:6px;">
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

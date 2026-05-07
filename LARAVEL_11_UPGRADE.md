@@ -1,5 +1,9 @@
 # Laravel 11 Nadgradnja - Povzetek Sprememb
 
+> **ARHIVSKO / ZGODOVINSKO.** Ta dokument opisuje nadgradnjo Laravel 8 → 11 iz leta 2025.
+> Aktualni upgrade (Laravel 11 → 13 + Vite + Inertia v3 + UI redesign) je v [`UPGRADE_2026.md`](UPGRADE_2026.md).
+> Ta datoteka se obdrži zaradi zgodovinskega konteksta (breaking changes, odločitve).
+
 ## Opravljene Spremembe
 
 ### 1. Composer.json

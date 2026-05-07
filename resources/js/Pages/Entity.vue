@@ -65,17 +65,26 @@
                 <table class="bg-white w-full divide-y divide-stone">
                     <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                         <tr>
-                            <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
-                                Številka
+                            <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue cursor-pointer select-none" @click="toggleSort('name')">
+                                <span class="inline-flex items-center gap-1">
+                                    Naziv kompenzacije
+                                    <span class="text-[10px] leading-none opacity-90">{{ sortIndicator('name') }}</span>
+                                </span>
                             </th>
-                            <th scope="col" class="pl-6 py-3 bg-blue">
-                                Ime kompenzacije
-                            </th>
-                            <th scope="col" class="pl-6 py-3 bg-blue">
-                                Datum
+                            <th scope="col" class="pl-6 py-3 bg-blue cursor-pointer select-none" @click="toggleSort('date')">
+                                <span class="inline-flex items-center gap-1">
+                                    Datum
+                                    <span class="text-[10px] leading-none opacity-90">{{ sortIndicator('date') }}</span>
+                                </span>
                             </th>
                             <th scope="col" class="pl-6 py-3 bg-blue">
                                 Znesek
+                            </th>
+                            <th scope="col" class="pl-6 py-3 bg-blue">
+                                Diskont
+                            </th>
+                            <th scope="col" class="pl-6 py-3 bg-blue">
+                                Provizija
                             </th>
                             <th scope="col" class="pl-6 py-3 rounded-tr-md bg-blue">
                                 PDF dokumenti
@@ -83,10 +92,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stone">
-                        <tr v-for="compenzation in entity.compenzations" :key="compenzation.id">
-                            <td class="pl-6 py-4 text-sm">
-                                {{ compenzation.id }}/{{ compenzation.year }}
-                            </td>
+                        <tr v-for="compenzation in sortedCompenzations" :key="compenzation.id">
                             <td class="pl-6 py-4 text-sm">
                                 <Link :href="route('compenzations.compenzation', { id: compenzation.id })" class="text-blue hover:underline">
                                     {{ compenzation.name }}
@@ -97,6 +103,12 @@
                             </td>
                             <td class="pl-6 py-4 text-sm">
                                 {{ formatAmount(compenzation.amount) }} €
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                {{ formatPercentage(compenzation.implementation_agreement?.discount) }}
+                            </td>
+                            <td class="pl-6 py-4 text-sm">
+                                {{ formatPercentage(compenzation.realization_agreement?.commission) }}
                             </td>
                             <td class="pl-6 py-4 text-sm">
                                 <div class="flex space-x-2">
@@ -188,16 +200,53 @@ export default {
             edit: false
         }
 
+        data['sort'] = 'id'
+        data['direction'] = 'asc'
+
         return {
             ...data,
         }
     },
 
-    created() {
-        //console.log(this.entity);
+    computed: {
+        sortedCompenzations() {
+            const list = [...(this.entity.compenzations || [])]
+            list.sort((a, b) => {
+                let cmp = 0
+                if (this.sort === 'name') {
+                    cmp = String(a.name || '').localeCompare(String(b.name || ''), 'sl', { sensitivity: 'base' })
+                } else if (this.sort === 'date') {
+                    const ta = a.date ? new Date(a.date).getTime() : 0
+                    const tb = b.date ? new Date(b.date).getTime() : 0
+                    cmp = ta === tb ? 0 : ta < tb ? -1 : 1
+                } else {
+                    cmp = (Number(a.id) || 0) - (Number(b.id) || 0)
+                }
+                const applyDir = this.sort === 'id' ? 1 : (this.direction === 'desc' ? -1 : 1)
+                if (cmp !== 0) {
+                    return cmp * applyDir
+                }
+                return (Number(a.id) || 0) - (Number(b.id) || 0)
+            })
+            return list
+        }
     },
 
     methods: {
+        toggleSort(column) {
+            if (this.sort === column) {
+                this.direction = this.direction === 'asc' ? 'desc' : 'asc'
+            } else {
+                this.sort = column
+                this.direction = 'asc'
+            }
+        },
+        sortIndicator(column) {
+            if (this.sort !== column) {
+                return '▲▼'
+            }
+            return this.direction === 'asc' ? '▲' : '▼'
+        },
         toggleEditMode(section, state) {
             if (state !== undefined) {
                 section.edit = state
@@ -234,6 +283,13 @@ export default {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
+        },
+        formatPercentage(value) {
+            if (value == null || value === '' || isNaN(Number(value))) return '';
+            return `${Number(value).toLocaleString('sl-SI', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })} %`;
         }
     },
 

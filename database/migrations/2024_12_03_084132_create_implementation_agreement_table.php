@@ -16,12 +16,12 @@ class CreateImplementationAgreementTable extends Migration
         Schema::create('implementation_agreement', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_compenzation');
-            $table->unsignedDecimal('discount', 5, 2);
+            $table->decimal('discount', 5, 2)->unsigned();
             $table->boolean('with_ddv');
-            $table->unsignedDecimal('discount_amount', 10, 2);
-            $table->unsignedDecimal('discount_ddv_amount', 10, 2);
-            $table->unsignedDecimal('net_amount', 10, 2);
-            $table->unsignedDecimal('transfer_amount', 10, 2);
+            $table->decimal('discount_amount', 10, 2)->unsigned();
+            $table->decimal('discount_ddv_amount', 10, 2)->unsigned();
+            $table->decimal('net_amount', 10, 2)->unsigned();
+            $table->decimal('transfer_amount', 10, 2)->unsigned();
             $table->timestamps();
 
             $table->foreign('id_compenzation')

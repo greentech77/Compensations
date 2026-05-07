@@ -11,26 +11,26 @@
             line-height: 1.6;
             color: #000;
             margin: 0;
-            padding: 30px 40px;
+            padding: 8px 40px 20px 40px;
         }
         .company-header {
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
+            border-collapse: collapse;
         }
         .header-logo {
-            display: inline-block;
             width: 120px;
             vertical-align: top;
             text-align: left;
+            padding-right: 10px;
         }
         .header-logo img {
             max-width: 100px;
             height: auto;
             display: block;
+            vertical-align: top;
         }
         .header-text {
-            display: inline-block;
-            width: calc(100% - 130px);
             vertical-align: top;
             text-align: right;
             font-size: 11px;
@@ -42,13 +42,13 @@
             font-weight: bold;
         }
         .header-text p {
-            margin: 2px 0;
+            margin: 0 0 2px 0;
             font-size: 10px;
         }
         .header-line {
             border-bottom: 1px solid #000;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
         }
         .document-number {
             text-align: left;
@@ -137,27 +137,29 @@
     </style>
 </head>
 <body>
+    @php
+        $pdfLogoPath = public_path('images/pdf/logo.jpg');
+        $entities = collect($compenzation->compenzationEntity ?? []);
+    @endphp
     {{-- Company Header with Logo --}}
-    <div class="company-header">
-        <div class="header-logo">
-            <img src="{{ public_path('images/pdf/logo.jpg') }}" alt="Logo">
-        </div>
-        <div class="header-text">
+    <table class="company-header">
+        <tr>
+        <td class="header-logo">
+            <img src="{{ $pdfLogoPath }}" alt="Logo">
+        </td>
+        <td class="header-text">
             <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
             <p>Email: matevz.korenjak@kompenzacije.eu</p>
             <p>Telefon: 031 227 139, Faks: 08 288 00 77</p>
             <p>SI98789309</p>
-        </div>
-    </div>
+        </td>
+        </tr>
+    </table>
     <div class="header-line"></div>
 
     {{-- Document Number --}}
-    @php
-        // Remove "Kompenzacija-" prefix and format as "0001/2025"
-        $compenzationNumber = str_replace('Kompenzacija-', '', $compenzation->name);
-    @endphp
     <div class="document-number">
-        ŠT.KOMPENZACIJE:{{ $compenzationNumber }}
+        ŠT.KOMPENZACIJE:{{ str_replace('Kompenzacija-', '', $compenzation->name) }}
     </div>
 
     {{-- Date and Location --}}
@@ -180,11 +182,6 @@
 
     {{-- Entities List (Chain) --}}
     <div class="entities-list">
-        @php
-            $entities = $compenzation->compenzationEntity ?? collect();
-            $totalEntities = $entities->count();
-        @endphp
-        
         {{-- First entity: MATEVŽ KORENJAK S.P. --}}
         <div class="entity-item">
             <div class="entity-row">
@@ -196,7 +193,7 @@
                     matevz.korenjak@kompenzacije.eu
                 </div>
             </div>
-            @if($totalEntities > 0)
+            @if($entities->count() > 0)
             <div class="entity-debt">dolguje:</div>
             @else
             {{-- Stamp --}}
@@ -207,7 +204,7 @@
         </div>
 
         {{-- Other entities --}}
-        @if($totalEntities > 0)
+        @if($entities->count() > 0)
             @foreach($entities as $index => $compenzationEntity)
                 @php
                     $entityNumber = $index + 2; // Start from 2 (1 is already used for MATEVŽ KORENJAK)
@@ -225,7 +222,7 @@
                             {{ $compenzationEntity->entity->email ?? '' }}
                         </div>
                     </div>
-                    @if($index < $totalEntities - 1)
+                    @if($index < $entities->count() - 1)
                     <div class="entity-debt">dolguje:</div>
                     @endif
                 </div>
@@ -233,12 +230,12 @@
         @endif
 
         {{-- Last entity: MATEVŽ KORENJAK S.P. --}}
-        @if($totalEntities > 0)
+        @if($entities->count() > 0)
         <div class="entity-item">
             <div class="entity-debt">dolguje:</div>
             <div class="entity-row">
                 <div class="entity-address">
-                    <span class="entity-number">{{ $totalEntities + 2 }}.</span>
+                    <span class="entity-number">{{ $entities->count() + 2 }}.</span>
                     <strong>MATEVŽ KORENJAK S.P.</strong>, Litostrojska cesta 12, 1000 Ljubljana
                 </div>
                 <div class="entity-email">

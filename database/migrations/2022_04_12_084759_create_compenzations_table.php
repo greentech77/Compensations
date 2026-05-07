@@ -17,7 +17,7 @@ class CreateCompenzationsTable extends Migration
             $table->id();
             $table->char('name', 50);
             $table->integer('year', false, true)->length(4);
-            $table->unsignedDecimal('amount', 10, 4);
+            $table->decimal('amount', 10, 4)->unsigned();
             $table->integer('vat', false, true)->length(2)->default(22);
             $table->date('date');
             $table->date('date_finished');

@@ -1,5 +1,5 @@
 <template>
-    <Combobox as="div" class="relative w-full" v-model="modelValue" @update:modelValue="updateValue">
+    <Combobox as="div" class="relative w-full" :model-value="modelValue" @update:modelValue="updateValue">
         <div class="relative">
             <ComboboxInput
                 class="w-full border border-stone-50 rounded-md bg-white px-3 py-2 pl-10 pr-10 text-left cursor-default focus:outline-none focus:border-stone focus:shadow"

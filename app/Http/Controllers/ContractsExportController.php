@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesExportFiles;
 use App\Services\Exports\ContractsExportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,6 +12,10 @@ use Inertia\Inertia;
 
 class ContractsExportController extends Controller
 {
+    use HandlesExportFiles;
+
+    public const CONTRACTS_EXPORT_DIR = 'exports/contracts';
+
     public function __construct()
     {
         $this->middleware('auth:web');
@@ -19,11 +24,20 @@ class ContractsExportController extends Controller
     public function contracts()
     {
         return Inertia::render('Exports/Contracts', [
+            'files' => $this->listExportFiles(self::CONTRACTS_EXPORT_DIR, 'exports.contracts.file'),
             'breadcrumb' => [
                 ['label' => 'Izvozi', 'route' => route('exports.index')],
                 ['label' => 'Izvoz pogodb'],
             ],
         ]);
+    }
+
+    /**
+     * Download a previously generated contracts export by filename.
+     */
+    public function downloadContractsFile(string $filename)
+    {
+        return $this->downloadExportFile(self::CONTRACTS_EXPORT_DIR, $filename);
     }
 
     public function exportContracts(Request $request, ContractsExportService $contractsExportService)
@@ -120,7 +134,11 @@ class ContractsExportController extends Controller
         $dom->formatOutput = true;
         $dom->loadXML($xml->asXML());
 
-        return Response::make($dom->saveXML(), 200, [
+        $xmlContent = $dom->saveXML();
+
+        $this->persistExportFile(self::CONTRACTS_EXPORT_DIR, $filename, $xmlContent);
+
+        return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);

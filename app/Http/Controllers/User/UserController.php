@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Validation\Validation;
+use App\Services\Compenzations\CompenzationPdfService;
 use App\Services\Entities\EntityService;
 use App\Models\Entity;
 use App\Services\Entities\Events\RegistrationEvent;
@@ -78,13 +79,11 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    public function downloadCompenzationPdf(Request $request, $entityId, $compenzationId, $type)
+    public function downloadCompenzationPdf(Request $request, CompenzationPdfService $pdfs, $entityId, $compenzationId, $type)
     {
-        $compenzation = \App\Models\Compenzation::with([
-            'proposal',
-            'implementationAgreement',
-            'realizationAgreement'
-        ])->findOrFail($compenzationId);
+        if (!in_array($type, ['proposal', 'implementation', 'realization'], true)) {
+            abort(404, 'Invalid PDF type');
+        }
 
         // Verify that the entity is part of this compenzation
         $entityExists = \App\Models\CompenzationEntity::where('id_compenzation', $compenzationId)
@@ -95,29 +94,35 @@ class UserController extends Controller
             abort(403, 'Entity is not part of this compenzation');
         }
 
-        $filePath = null;
-        $fileName = null;
+        $compenzation = \App\Models\Compenzation::with([
+            'proposal',
+            'implementationAgreement',
+            'realizationAgreement',
+            'compenzationEntity.entity',
+        ])->findOrFail($compenzationId);
 
-        switch ($type) {
-            case 'proposal':
-                $filePath = $compenzation->proposal->file_path ?? null;
-                $fileName = $compenzation->proposal->file_name ?? "kompenzacija{$compenzationId}.pdf";
-                break;
-            case 'implementation':
-                $filePath = $compenzation->implementationAgreement->file_path ?? null;
-                $fileName = $compenzation->implementationAgreement->file_name ?? "pogodba_o_izvedbi{$compenzationId}.pdf";
-                break;
-            case 'realization':
-                $filePath = $compenzation->realizationAgreement->file_path ?? null;
-                $fileName = $compenzation->realizationAgreement->file_name ?? "pogodba_o_unovcenju{$compenzationId}.pdf";
-                break;
-            default:
-                abort(404, 'Invalid PDF type');
+        try {
+            $filePath = $pdfs->resolvePath($compenzation, $type);
+        } catch (\Throwable $e) {
+            \Log::error("On-demand PDF generation failed for compenzation {$compenzationId} ({$type}): ".$e->getMessage());
+            abort(500, 'PDF dokument ni na voljo. Poskusite znova ali stopite v stik s podporo.');
         }
 
         if (!$filePath || !\Storage::disk('local')->exists($filePath)) {
             abort(404, 'PDF file not found');
         }
+
+        $defaultName = match ($type) {
+            'proposal' => "kompenzacija{$compenzationId}.pdf",
+            'implementation' => "pogodba_o_izvedbi{$compenzationId}.pdf",
+            'realization' => "pogodba_o_unovcenju{$compenzationId}.pdf",
+        };
+
+        $fileName = match ($type) {
+            'proposal' => $compenzation->proposal->file_name ?? $defaultName,
+            'implementation' => $compenzation->implementationAgreement->file_name ?? $defaultName,
+            'realization' => $compenzation->realizationAgreement->file_name ?? $defaultName,
+        };
 
         return \Storage::disk('local')->download($filePath, $fileName);
     }

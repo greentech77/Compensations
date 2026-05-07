@@ -1,11 +1,15 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
 # Install system dependencies and PHP extensions
+# - mbstring + gd are required by mpdf/mpdf
+# - zip + libzip-dev are required by mpdf (optional features) and laravel composer cache
+# - libxml2-dev backs the xml/dom extensions used for OpPIS XML exports
 RUN apk add --no-cache \
     git \
     curl \
     libpng-dev \
     libxml2-dev \
+    libzip-dev \
     zip \
     unzip \
     oniguruma-dev \
@@ -20,7 +24,8 @@ RUN apk add --no-cache \
     bcmath \
     gd \
     opcache \
-    xml
+    xml \
+    zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -31,11 +36,13 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html
 
-# Install PHP dependencies (with dev dependencies for development)
-RUN composer install --optimize-autoloader --no-interaction --ignore-platform-reqs || composer update --no-interaction && composer install --optimize-autoloader --no-interaction
+# Install PHP dependencies. We rely on the lock file produced on the host
+# (Laravel 13 / Inertia 3 / mpdf 8.3) and do NOT use --ignore-platform-reqs,
+# so the build fails fast if an extension is missing in the image.
+RUN composer install --optimize-autoloader --no-interaction --no-dev
 
-# Install Node dependencies and build assets
-RUN npm ci && npm run production
+# Install Node dependencies and build front-end assets via Vite
+RUN npm ci && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -54,4 +61,3 @@ EXPOSE 9000
 
 # Start PHP-FPM
 CMD ["php-fpm"]
-

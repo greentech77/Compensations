@@ -1,5 +1,5 @@
 <template>
-    <Listbox as="div" class="relative w-full appearance-none focus:outline-none focus:border-stone focus:shadow transition duration-150" v-model="modelValue">
+    <Listbox as="div" class="relative w-full appearance-none focus:outline-none focus:border-stone focus:shadow transition duration-150" :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)">
         <ListboxButton 
             class="flex items-center relative w-full border border-stone-50 rounded-md bg-white px-3 py-2 text-left cursor-default focus:outline-none focus:border-stone focus:shadow"
             :class=" {'!border-red-600 border-opacity-30 bg-red-600 bg-opacity-10 focus:border-opacity-100 focus:bg-opacity-20' : error }">
