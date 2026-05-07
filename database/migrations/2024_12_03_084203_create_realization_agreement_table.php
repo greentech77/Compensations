@@ -16,10 +16,10 @@ class CreateRealizationAgreementTable extends Migration
         Schema::create('realization_agreement', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_compenzation');
-            $table->unsignedDecimal('commission', 10, 2);
-            $table->unsignedDecimal('commission_amount', 10, 2);
-            $table->unsignedDecimal('commission_ddv_amount', 10, 2);
-            $table->unsignedDecimal('transfer_amount', 10, 2);
+            $table->decimal('commission', 10, 2)->unsigned();
+            $table->decimal('commission_amount', 10, 2)->unsigned();
+            $table->decimal('commission_ddv_amount', 10, 2)->unsigned();
+            $table->decimal('transfer_amount', 10, 2)->unsigned();
             $table->timestamps();
 
             $table->foreign('id_compenzation')

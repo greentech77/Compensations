@@ -1,54 +1,43 @@
-# 📚 Dokumentacija - Kompenzacije System
+# Dokumentacija — Kazalo
 
-## 🎯 Hitra Navigacija
-
-### Za Začetek
-- **[START_DEVELOPMENT.md](START_DEVELOPMENT.md)** - Vodič za začetek razvoja
-- **[PROGRESS.md](PROGRESS.md)** - ⭐ **Glavni tracking napredka** ⭐
-
-### Setup Navodila
-- **[DATABASE_SETUP.md](setup/DATABASE_SETUP.md)** - Nastavitev baze podatkov
-- **[MYSQL_SETUP.md](setup/MYSQL_SETUP.md)** - MySQL namestitev
-- **[SETUP_INSTRUCTIONS.md](setup/SETUP_INSTRUCTIONS.md)** - Splošna navodila
-
-### Napredek Razvoja
-- **[DEVELOPMENT_PROGRESS.md](progress/DEVELOPMENT_PROGRESS.md)** - Podroben napredek
-- **[MIGRATIONS_COMPLETE.md](progress/MIGRATIONS_COMPLETE.md)** - Status migracij
-
-## 📊 Sledenje Napredka
-
-**Glavna datoteka za tracking:** [`PROGRESS.md`](PROGRESS.md)
-
-Ta datoteka vsebuje:
-- ✅ Dokončane naloge
-- 📋 Trenutna faza razvoja
-- 🔄 Naslednji koraki
-- 📈 Statistika napredka
-
-## 📁 Struktura Dokumentacije
-
-```
-docs/
-├── index.md                    # Ta datoteka
-├── README.md                   # Pregled dokumentacije
-├── PROGRESS.md                 # 🎯 GLÁVNA - Tracking napredka
-├── START_DEVELOPMENT.md        # Vodič za začetek
-├── progress/                   # Detajlne datoteke o napredku
-│   ├── DEVELOPMENT_PROGRESS.md
-│   └── MIGRATIONS_COMPLETE.md
-└── setup/                      # Navodila za nastavitev
-    ├── DATABASE_SETUP.md
-    ├── MYSQL_SETUP.md
-    ├── SETUP_INSTRUCTIONS.md
-    └── *.sh                    # Setup skripte
-```
-
-## 🚀 Začni Tukaj
-
-1. **Nov v projektu?** → Preberi [`START_DEVELOPMENT.md`](START_DEVELOPMENT.md)
-2. **Kje smo?** → Preberi [`PROGRESS.md`](PROGRESS.md)
-3. **Nastavitev okolja?** → Sledi navodilom v `setup/` mapi
+Hitro kazalo celotne dokumentacije.
 
 ---
-*Posodobljeno: 2025-11-30*
 
+## Najpomembneje
+- **[../CLAUDE.md](../CLAUDE.md)** — glavni vodič: stack, struktura, pravila, varnost
+- **[../UPGRADE_2026.md](../UPGRADE_2026.md)** — plan nadgradnje platforme (Laravel 13, Vite, Inertia 3, UI redesign)
+- **[../README.md](../README.md)** — pregled projekta in quickstart
+- **[README.md](README.md)** — celoten indeks dokumentacije
+
+---
+
+## Začetek
+- [START_DEVELOPMENT.md](START_DEVELOPMENT.md)
+- [setup/DATABASE_SETUP.md](setup/DATABASE_SETUP.md)
+- [setup/MYSQL_SETUP.md](setup/MYSQL_SETUP.md)
+- [setup/SETUP_INSTRUCTIONS.md](setup/SETUP_INSTRUCTIONS.md)
+
+## Funkcionalnosti
+- [EXPORT_FUNCTIONALITY_ANALYSIS.md](EXPORT_FUNCTIONALITY_ANALYSIS.md)
+- [EXPORT_IMPLEMENTATION.md](EXPORT_IMPLEMENTATION.md)
+- [PDF_GENERATION_IMPLEMENTATION.md](PDF_GENERATION_IMPLEMENTATION.md)
+- [PDF_LEGACY_FORMAT_IMPLEMENTATION.md](PDF_LEGACY_FORMAT_IMPLEMENTATION.md)
+- [PDF_TEMPLATES_ENHANCEMENT.md](PDF_TEMPLATES_ENHANCEMENT.md)
+- [DATABASE_FIELDS_ENHANCEMENT.md](DATABASE_FIELDS_ENHANCEMENT.md)
+
+## Napredek
+- [PROGRESS.md](PROGRESS.md)
+- [progress/DEVELOPMENT_PROGRESS.md](progress/DEVELOPMENT_PROGRESS.md)
+- [progress/MIGRATIONS_COMPLETE.md](progress/MIGRATIONS_COMPLETE.md)
+
+## Task-based workflow
+- `../.agent/PHASES.md`
+- `../.agent/current-task.md`
+- `../.agent/previous-task.md`
+- `../.agent/task-data/backlog.md`
+- `../.agent/task-data/history.md`
+
+---
+
+*Posodobljeno: 2026-04-19*

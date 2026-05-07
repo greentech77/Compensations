@@ -29,11 +29,17 @@
         <table class="bg-white w-full divide-y divide-stone">
             <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                 <tr>
-                    <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
-                        Naziv kompenzacije
+                    <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue cursor-pointer select-none" @click="toggleSort('name')">
+                        <span class="inline-flex items-center gap-1">
+                            Naziv kompenzacije
+                            <span class="text-[10px] leading-none opacity-90">{{ sortIndicator('name') }}</span>
+                        </span>
                     </th>
-                    <th scope="col" class="pl-6 py-3 bg-blue">
-                        Datum
+                    <th scope="col" class="pl-6 py-3 bg-blue cursor-pointer select-none" @click="toggleSort('date')">
+                        <span class="inline-flex items-center gap-1">
+                            Datum
+                            <span class="text-[10px] leading-none opacity-90">{{ sortIndicator('date') }}</span>
+                        </span>
                     </th>
                     <th scope="col" class="pl-6 py-3 bg-blue">
                         Znesek
@@ -43,6 +49,9 @@
                     </th>
                     <th scope="col" class="pl-6 py-3 bg-blue">
                         Provizija
+                    </th>
+                    <th scope="col" class="pl-6 py-3 rounded-tr-md bg-blue">
+                        Dokumenti
                     </th>
                 </tr>
             </thead>
@@ -63,6 +72,37 @@
                     <td class="pl-6 py-4 whitespace-nowrap">
                         {{formatPercentage(compenzation.realization_agreement.commission)}}
                     </td>
+                    <td class="pl-6 py-4 whitespace-nowrap" @click.stop>
+                        <div class="flex items-center gap-2">
+                            <a
+                                v-if="compenzation.proposal && compenzation.proposal.file_path"
+                                :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'proposal' })"
+                                class="inline-flex items-center px-3 py-1.5 bg-blue text-white text-xs rounded hover:bg-blue-600 transition"
+                                title="Predlog kompenzacije"
+                            >
+                                <DownloadIcon class="h-4 w-4 mr-1"/>
+                                Predlog kompenzacije
+                            </a>
+                            <a
+                                v-if="compenzation.implementation_agreement && compenzation.implementation_agreement.file_path"
+                                :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'implementation' })"
+                                class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+                                title="Pogodba o izvedbi"
+                            >
+                                <DownloadIcon class="h-4 w-4 mr-1"/>
+                                Pogodba o izvedbi
+                            </a>
+                            <a
+                                v-if="compenzation.realization_agreement && compenzation.realization_agreement.file_path"
+                                :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'realization' })"
+                                class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition"
+                                title="Pogodba o unovčenju"
+                            >
+                                <DownloadIcon class="h-4 w-4 mr-1"/>
+                                Pogodba o unovčenju
+                            </a>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -73,11 +113,12 @@
 
 
 <script>
-import { Head } from '@inertiajs/inertia-vue3'
+import { Head } from '@inertiajs/vue3'
 import AdminLayout from '@/mixins/adminLayout'
 import Pagination from '@/Components/Pagination'
 import Button from '@/Components/Button.vue'
 import Input from '@/Components/Input.vue'
+import { DownloadIcon } from '@heroicons/vue/outline'
 
 export default {
 
@@ -87,7 +128,8 @@ export default {
         Head,
         Pagination,
         Button,
-        Input
+        Input,
+        DownloadIcon
     },
 
     props: {
@@ -95,7 +137,9 @@ export default {
         filters: {
             type: Object,
             default: () => ({
-                search: null
+                search: null,
+                sort: 'date',
+                direction: 'asc'
             })
         }
     },
@@ -105,6 +149,8 @@ export default {
             localFilters: {
                 search: this.filters?.search ?? ''
             },
+            sort: this.filters?.sort ?? 'date',
+            direction: this.filters?.direction ?? 'asc',
             searchTimeout: null
         }
     },
@@ -120,6 +166,8 @@ export default {
             handler(newFilters) {
                 if (newFilters) {
                     this.localFilters.search = newFilters.search ?? '';
+                    this.sort = newFilters.sort ?? 'date';
+                    this.direction = newFilters.direction ?? 'asc';
                 }
             },
             immediate: true
@@ -169,11 +217,7 @@ export default {
             this.$inertia.get(this.route('compenzations.compenzation.new'));
         },
         applyFilters() {
-            const params = {};
-            
-            if (this.localFilters.search) {
-                params.search = this.localFilters.search;
-            }
+            const params = this.buildQueryParams();
 
             this.$inertia.get(this.route('compenzations'), params, {
                 preserveState: true,
@@ -183,11 +227,51 @@ export default {
         },
         clearFilters() {
             this.localFilters.search = '';
-            
-            this.$inertia.get(this.route('compenzations'), {}, {
+
+            // Reset to defaults but preserve current sort selection so the user
+            // does not lose their column ordering when clearing the search.
+            this.$inertia.get(this.route('compenzations'), this.buildQueryParams({ search: null }), {
                 preserveState: true,
                 preserveScroll: true
             });
+        },
+        buildQueryParams(overrides = {}) {
+            const params = {};
+
+            if (this.localFilters.search) {
+                params.search = this.localFilters.search;
+            }
+
+            // Only include sort params when they differ from the defaults so
+            // URLs stay clean for the common case.
+            if (this.sort && this.sort !== 'date') {
+                params.sort = this.sort;
+            }
+            if (this.direction && this.direction !== 'asc') {
+                params.direction = this.direction;
+            }
+
+            return Object.assign(params, overrides);
+        },
+        toggleSort(column) {
+            if (this.sort === column) {
+                this.direction = this.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sort = column;
+                this.direction = 'asc';
+            }
+
+            this.$inertia.get(this.route('compenzations'), this.buildQueryParams(), {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        },
+        sortIndicator(column) {
+            if (this.sort !== column) {
+                return '▲▼';
+            }
+            return this.direction === 'asc' ? '▲' : '▼';
         }
     },
     beforeUnmount() {

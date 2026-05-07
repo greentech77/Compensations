@@ -11,26 +11,29 @@
             line-height: 1.4;
             color: #000;
             margin: 0;
-            padding: 20px;
+            padding: 8px 20px 12px 20px;
         }
         .company-header {
-            display: table;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             border-bottom: 1px solid #000;
-            padding-bottom: 10px;
+            padding-bottom: 4px;
+            border-collapse: collapse;
         }
         .header-logo {
-            display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             width: 120px;
+            text-align: left;
+            padding-right: 10px;
         }
         .header-text {
-            display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             text-align: right;
             font-size: 9px;
             line-height: 1.4;
+        }
+        .header-text p {
+            margin: 0 0 2px 0;
         }
         .client-info {
             margin: 15px 0;
@@ -116,18 +119,21 @@
     </style>
 </head>
 <body>
+    @php($pdfLogoPath = public_path('images/pdf/logo.jpg'))
     <!-- Page 1: Bill -->
-    <div class="company-header">
-        <div class="header-logo">
-            <img src="{{ public_path('images/pdf/logo.jpg') }}" alt="Logo">
-        </div>
-        <div class="header-text">
+    <table class="company-header">
+        <tr>
+        <td class="header-logo">
+            <img src="{{ $pdfLogoPath }}" alt="Logo">
+        </td>
+        <td class="header-text">
             <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
             <p>Email: matevz.korenjak@kompenzacije.eu</p>
             <p>Telefon: 031 227 139, Faks: 08 288 00 77</p>
             <p>SI98789309</p>
-        </div>
-    </div>
+        </td>
+        </tr>
+    </table>
 
     <div class="client-info">
         @if($bill->entity)
@@ -201,17 +207,19 @@
 
     <!-- Page 2: Specification -->
     <div style="page-break-before: always;">
-        <div class="company-header">
-            <div class="header-logo">
-                <!-- Logo placeholder -->
-            </div>
-            <div class="header-text">
+        <table class="company-header">
+            <tr>
+            <td class="header-logo">
+                <img src="{{ $pdfLogoPath }}" alt="Logo">
+            </td>
+            <td class="header-text">
                 <div>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</div>
                 <div>Email: matevz.korenjak@kompenzacije.eu</div>
                 <div>Telefon: 031 227 139, Faks: 08 288 00 77</div>
                 <div>SI98789309</div>
-            </div>
-        </div>
+            </td>
+            </tr>
+        </table>
 
         <div class="specification-title">SPECIFIKACIJA UNOVČENIH TERJATEV</div>
         <div class="specification-period">V obdobju {{ \Carbon\Carbon::parse($dateFrom)->format('d.m.Y') }} - {{ \Carbon\Carbon::parse($dateTo)->format('d.m.Y') }}</div>

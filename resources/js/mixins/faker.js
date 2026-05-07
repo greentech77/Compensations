@@ -1,9 +1,35 @@
-// Faker se uporablja samo za generične podatke (UUID, datumi, finance, boolean)
-// ki niso odvisni od locale-ja. Vsi locale-specifični podatki (imena, mesta, naslovi)
-// se generirajo z custom slovenskimi funkcijami (slovenianFaker)
-import * as faker from 'faker';
-import { merge, sample } from 'lodash'
-import { isThisSecond } from 'date-fns';
+// Dev helper za generiranje fake podatkov (tipka 'f').
+// Locale-specific vrednosti generira slovenianFaker; generic primitive-e
+// (UUID, datumi, finance, boolean) imamo inline, da se izognemo odvisnosti
+// od opuscenega "faker" paketa.
+import { merge } from 'lodash'
+
+const faker = {
+    datatype: {
+        uuid: () =>
+            (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                    const r = (Math.random() * 16) | 0
+                    const v = c === 'x' ? r : (r & 0x3) | 0x8
+                    return v.toString(16)
+                }),
+        boolean: () => Math.random() < 0.5,
+    },
+    date: {
+        past: () => {
+            const now = Date.now()
+            const oneYearMs = 365 * 24 * 60 * 60 * 1000
+            return new Date(now - Math.floor(Math.random() * oneYearMs))
+        },
+    },
+    finance: {
+        amount: (min = 0, max = 1000) => {
+            const value = Math.random() * (max - min) + min
+            return value.toFixed(2)
+        },
+    },
+}
 
 const password = 'aaaaaa1!A'
 const email = 'gregakop@gmail.com'

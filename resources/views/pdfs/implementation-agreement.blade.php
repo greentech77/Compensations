@@ -7,35 +7,40 @@
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 10.5px;
+            line-height: 1.28;
             color: #000;
             margin: 0;
-            padding: 30px 40px;
+            padding: 2px 26px 6px 26px;
         }
         .company-header {
-            display: table;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 3px;
+            border-collapse: collapse;
         }
         .header-logo {
-            display: table-cell;
-            vertical-align: middle;
-            width: 120px;
+            vertical-align: top;
+            width: 62px;
             padding-top: 0;
+            text-align: left;
+            padding-right: 6px;
+        }
+        .header-logo-wrap {
+            height: 28px;
+            overflow: hidden;
         }
         .header-logo img {
-            max-width: 100px;
+            max-width: 46px;
             height: auto;
             display: block;
-            vertical-align: middle;
+            vertical-align: top;
+            margin-top: -3px;
         }
         .header-text {
-            display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             text-align: right;
-            font-size: 11px;
-            line-height: 1.4;
+            font-size: 10px;
+            line-height: 1.2;
             padding-top: 0;
         }
         .header-text h2 {
@@ -44,54 +49,48 @@
             font-weight: bold;
         }
         .header-text p {
-            margin: 2px 0;
+            margin: 0 0 2px 0;
             font-size: 10px;
         }
         .header-line {
             border-bottom: 1px solid #000;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 6px;
+            padding-bottom: 2px;
         }
         .parties-section {
-            margin: 30px 0;
-            line-height: 1.8;
+            margin: 6px 0;
+            line-height: 1.3;
             text-align: left;
         }
         .party-info {
-            margin-bottom: 10px;
+            margin-bottom: 3px;
         }
         .party-separator {
             text-align: left;
-            margin: 10px 0;
+            margin: 3px 0;
         }
         .contract-title {
             text-align: left;
-            font-weight: bold;
-            font-size: 12px;
-            margin: 30px 0;
+            font-size: 10px;
+            margin: 6px 0;
         }
         .findings-section {
-            margin: 20px 0;
-            line-height: 1.8;
+            margin: 5px 0 6px 0;
+            line-height: 1.3;
             text-align: left;
         }
-        .findings-section ul {
-            margin: 8px 0;
-            padding-left: 20px;
-            list-style-type: disc;
-        }
-        .findings-section li {
-            margin: 5px 0;
+        .findings-section p {
+            margin: 1px 0;
         }
         .article {
-            margin: 20px 0;
-            line-height: 1.8;
+            margin: 4px 0;
+            line-height: 1.3;
             text-align: left;
         }
         .article-title {
             font-weight: bold;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 2px;
         }
         .calculation-item {
             display: table;
@@ -125,71 +124,95 @@
             width: 30%;
         }
         .signature-section {
-            margin-top: 60px;
-            display: table;
+            margin-top: 8px;
             width: 100%;
         }
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
         .signature-left {
-            display: table-cell;
             width: 50%;
-            text-align: left;
             vertical-align: top;
+            text-align: left;
         }
         .signature-right {
-            display: table-cell;
             width: 50%;
-            text-align: right;
             vertical-align: top;
-            padding-left: 20px;
-        }
-        .signature-line {
-            margin-top: 40px;
+            text-align: right;
         }
         .stamp {
+            margin-top: 2px;
             text-align: right;
-            margin-top: 10px;
         }
         .stamp img {
-            max-width: 150px;
+            max-width: 70px;
             height: auto;
         }
+        .signature-line {
+            margin-top: 0;
+        }
+        .amount-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2px 0;
+        }
+        .amount-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+        .amount-table .amount-label {
+            text-align: left;
+            width: 75%;
+        }
+        .amount-table .amount-value {
+            text-align: right;
+            width: 25%;
+            white-space: nowrap;
+            padding-left: 12px;
+        }
         .date-location {
-            margin: 30px 0 10px 0;
+            margin: 6px 0 3px 0;
             text-align: left;
         }
     </style>
 </head>
 <body>
+    @php
+        $pdfLogoPath = public_path('images/pdf/logo.jpg');
+        $firstEntityRelation = $compenzation->compenzationEntity->firstWhere('num', 1) ?? $compenzation->compenzationEntity->first();
+        $firstEntity = optional($firstEntityRelation)->entity;
+        $firstEntityName = $firstEntity ? strtoupper($firstEntity->company_name) : 'PRVA STRANKA';
+        $firstEntityAddress = $firstEntity ? trim(($firstEntity->address ?? '').', '.($firstEntity->post_num ?? '').' '.($firstEntity->post_town ?? '')) : '';
+        $firstEntityVat = $firstEntity->vat_num ?? '';
+    @endphp
     {{-- Company Header with Logo --}}
-    <div class="company-header">
-        <div class="header-logo">
-            <img src="{{ public_path('images/pdf/logo.jpg') }}" alt="Logo">
-        </div>
-        <div class="header-text">
+    <table class="company-header">
+        <tr>
+        <td class="header-logo">
+            <div class="header-logo-wrap">
+                <img src="{{ $pdfLogoPath }}" alt="Logo">
+            </div>
+        </td>
+        <td class="header-text">
             <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
             <p>Email: matevz.korenjak@kompenzacije.eu</p>
             <p>Telefon: 031 227 139, Faks: 08 288 00 77</p>
-            <p><strong>SI98789309</strong></p>
-        </div>
-    </div>
+            <p>SI98789309</p>
+        </td>
+        </tr>
+    </table>
     <div class="header-line"></div>
 
-    @php
-        $firstEntity = $compenzation->compenzationEntity->first();
-        $lastEntity = $compenzation->compenzationEntity->last();
-    @endphp
-
     <div class="parties-section">
-        @if($firstEntity && $firstEntity->entity)
         <div class="party-info">
-            <strong>{{ strtoupper($firstEntity->entity->company_name) }}</strong> {{ $firstEntity->entity->address }}, {{ $firstEntity->entity->post_num }} {{ $firstEntity->entity->post_town }}<br>
-            ID DDV:{{ $firstEntity->entity->vat_num }} (v nadaljevanju <strong>prva stranka</strong>)
+            <strong>{{ $firstEntityName }}</strong>@if($firstEntityAddress) {{ $firstEntityAddress }}@endif<br>
+            ID DDV:{{ $firstEntityVat }} (v nadaljevanju <strong>prva stranka</strong>)
         </div>
-        @endif
         <div class="party-separator">in</div>
         <div class="party-info">
             <strong>MATEVŽ KORENJAK S.P.</strong>, Litostrojska cesta 12, 1000 Ljubljana<br>
-            ID DDV:SI98789309 (v nadaljevanju <strong>druga stranka</strong>)
+            ID DDV:SI98789309 ( v nadaljevanju <strong>druga stranka</strong>)
         </div>
     </div>
 
@@ -199,18 +222,16 @@
 
     <div class="findings-section">
         <p><strong>Ugotovi se:</strong></p>
-        <ul>
-            @if($compenzation->compenzationEntity && $compenzation->compenzationEntity->count() > 1)
-                @php
-                    $secondEntity = $compenzation->compenzationEntity->skip(1)->first();
-                @endphp
-                @if($secondEntity && $secondEntity->entity)
-                <li>da ima prva stranka obveznost do upnika <strong>{{ strtoupper($secondEntity->entity->company_name) }}</strong> {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini {{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</li>
-                @endif
+        @if($compenzation->compenzationEntity && $compenzation->compenzationEntity->count() > 1)
+            @php
+                $secondEntity = $compenzation->compenzationEntity->skip(1)->first();
+            @endphp
+            @if($secondEntity && $secondEntity->entity)
+            <p>da ima prva stranka obveznost do upnika <strong>{{ strtoupper($secondEntity->entity->company_name) }}</strong> {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini {{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</p>
             @endif
-            <li>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom {{ $agreement->discount ?? '5' }} %</li>
-            <li>druga stranka je nosilec pravic in obveznosti po predlogu verižne kompenzacije, katere izvedba je predmet te pogodbe</li>
-        </ul>
+        @endif
+        <p>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom {{ $agreement->discount ?? '5' }} %</p>
+        <p>druga stranka je nosilec pravic in obveznosti po predlogu verižne kompenzacije, katere izvedba je predmet te pogodbe</p>
     </div>
 
     <div class="article">
@@ -220,7 +241,7 @@
 
     <div class="article">
         <div class="article-title">2.člen</div>
-        <p>Prva stranka se vsled izvedbe verižne kompenzacije obvezuje drugi stranki nakazati znesek verižne kompenzacije, zmanjšan za provizijo s pripadajočim DDV, na njen transakcijski račun: <strong>10100-0050372968</strong> najkasneje do __________. Vendar le pod pogojem, da je predlog verižne kompenzacije v celoti potrjen iz strani vseh udeležencev.</p>
+        <p>Prva stranka se vsled izvedbe verižne kompenzacije obvezuje drugi stranki nakazati znesek verižne kompenzacije, zmanjšan za provizijo s pripadajočim DDV, na njen transakcijski račun : SI56 6100 0002 5604 758 najkasneje do ______________. Vendar le pod pogojem, da je predlog verižne kompenzacije v celoti potrjen iz strani vseh udeležencev.</p>
     </div>
 
     <div class="article">
@@ -244,27 +265,26 @@
             $vatAmount = $provisionWithVAT - $netProvision;
             $transferAmount = $amount - $provisionWithVAT;
         @endphp
-        <div class="calculation-item">
-            <div class="calculation-label">Po pogodbi o izvedbi verižne kompenzacije prva stranka zaračuna drugi stranki provizijo v višini:</div>
-            <div class="calculation-value">{{ number_format($provisionWithVAT, 2, ',', '.') }} €</div>
-        </div>
-        <div class="calculation-item">
-            <div class="calculation-label">{{ $discount }}% z vključenim DDV od zneska realizirane verižne kompenzacije, v višini:</div>
-            <div class="calculation-value">{{ number_format($provisionWithVAT, 2, ',', '.') }}€</div>
-        </div>
-        <div class="calculation-item">
-            <div class="calculation-label">Od katerega je 22% DDV:</div>
-            <div class="calculation-value">{{ number_format($vatAmount, 2, ',', '.') }}€</div>
-        </div>
-        <div class="calculation-item">
-            <div class="calculation-label">Neto znesek brez DDV (davčna osnova):</div>
-            <div class="calculation-value">{{ number_format($netProvision, 2, ',', '.') }}€</div>
-        </div>
+        <p>Po pogodbi o izvedbi verižne kompenzacije prva stranka zaračuna drugi stranki provizijo v višini:</p>
+        <table class="amount-table">
+            <tr>
+                <td class="amount-label">{{ $discount }}% z vključenim DDV od zneska realizirane verižne kompenzacije, v višini:</td>
+                <td class="amount-value">{{ number_format($provisionWithVAT, 2, ',', '.') }} €</td>
+            </tr>
+            <tr>
+                <td class="amount-label">Od katerega je 22% DDV:</td>
+                <td class="amount-value">{{ number_format($vatAmount, 2, ',', '.') }}€</td>
+            </tr>
+            <tr>
+                <td class="amount-label">Neto znesek brez DDV (davčna osnova):</td>
+                <td class="amount-value">{{ number_format($netProvision, 2, ',', '.') }}€</td>
+            </tr>
+            <tr>
+                <td class="amount-label"><strong>Znesek nakazila je:</strong></td>
+                <td class="amount-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }}€</strong></td>
+            </tr>
+        </table>
         <p>Dogovorjena provizija z DDV se pri nakazilu enostransko pobota.</p>
-        <div class="calculation-item">
-            <div class="calculation-label"><strong>Znesek nakazila je:</strong></div>
-            <div class="calculation-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }}€</strong></div>
-        </div>
     </div>
 
     <div class="article">
@@ -277,21 +297,25 @@
     </div>
 
     <div class="signature-section">
-        <div class="signature-left">
-            @if($firstEntity && $firstEntity->entity)
-            <div class="signature-line">
-                Prva stranka: <strong>{{ strtoupper($firstEntity->entity->company_name) }}</strong>
-            </div>
-            @endif
-        </div>
-        <div class="signature-right">
-            <div class="signature-line">
-                Druga stranka: <strong>MATEVŽ KORENJAK S.P.</strong>
-            </div>
-            <div class="stamp" style="margin-top: 10px;">
-                <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig">
-            </div>
-        </div>
+        @if($firstEntity)
+        <table class="signature-table">
+            <tr>
+                <td class="signature-left">
+                    <div class="signature-line">
+                        Prva stranka:<strong>{{ strtoupper($firstEntity->company_name) }}</strong>
+                    </div>
+                </td>
+                <td class="signature-right">
+                    <div class="signature-line">
+                        Druga stranka: <strong>MATEVŽ KORENJAK S.P.</strong>
+                    </div>
+                    <div class="stamp">
+                        <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig">
+                    </div>
+                </td>
+            </tr>
+        </table>
+        @endif
     </div>
 </body>
 </html>

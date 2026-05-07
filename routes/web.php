@@ -61,6 +61,7 @@ Route::get('/compenzations/export', [CompenzationController::class, 'exportCompe
 Route::get('/compenzations/{id}', [CompenzationController::class, 'getCompenzation'])->name('compenzations.compenzation');
 Route::patch('/compenzations/{id}', [CompenzationController::class, 'patchCompenzation'])->name('compenzations.compenzation.patch');
 Route::get('/compenzations/{id}/pdf/{type}', [CompenzationController::class, 'downloadCompenzationPdf'])->name('compenzations.compenzation.pdf.download');
+Route::post('/compenzations/{id}/pdf/regenerate', [CompenzationController::class, 'regeneratePdfs'])->name('compenzations.compenzation.pdf.regenerate');
 Route::get('/compenzations/compenzation/new', [CompenzationController::class, 'addCompenzation'])->name('compenzations.compenzation.new');
 
 Route::get('/bills', [BillController::class, 'getBills'])->name('bills');
@@ -95,9 +96,18 @@ Route::post('/compenzation/add', [CompenzationController::class, 'postCompenzati
 Route::get('/exports', [ExportController::class, 'index'])->name('exports.index');
 Route::get('/exports/bills', [ExportController::class, 'bills'])->name('exports.bills');
 Route::match(['get', 'post'], '/exports/bills/download', [ExportController::class, 'exportBills'])->name('exports.bills.export');
+Route::get('/exports/bills/files/{filename}', [ExportController::class, 'downloadBillsFile'])
+    ->where('filename', '[A-Za-z0-9._\-]+')
+    ->name('exports.bills.file');
 Route::get('/exports/contracts', [ContractsExportController::class, 'contracts'])->name('exports.contracts');
 Route::match(['get', 'post'], '/exports/contracts/download', [ContractsExportController::class, 'exportContracts'])->name('exports.contracts.export');
+Route::get('/exports/contracts/files/{filename}', [ContractsExportController::class, 'downloadContractsFile'])
+    ->where('filename', '[A-Za-z0-9._\-]+')
+    ->name('exports.contracts.file');
 Route::get('/exports/compenzations', [ExportController::class, 'compenzations'])->name('exports.compenzations');
+Route::get('/exports/compenzations/files/{filename}', [ExportController::class, 'downloadCompenzationsFile'])
+    ->where('filename', '[A-Za-z0-9._\-]+')
+    ->name('exports.compenzations.file');
 
 });
 

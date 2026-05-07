@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesExportFiles;
 use App\Models\Bill;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,6 +11,15 @@ use Carbon\Carbon;
 
 class ExportController extends Controller
 {
+    use HandlesExportFiles;
+
+    /**
+     * Directories (relative to the `local` disk) where generated XML exports are kept
+     * so they can be re-downloaded from the export pages.
+     */
+    public const BILLS_EXPORT_DIR = 'exports/bills';
+    public const COMPENZATIONS_EXPORT_DIR = 'exports/compenzations';
+
     /**
      * Create a new controller instance.
      */
@@ -42,6 +52,7 @@ class ExportController extends Controller
     public function bills()
     {
         return Inertia::render('Exports/Bills', [
+            'files' => $this->listExportFiles(self::BILLS_EXPORT_DIR, 'exports.bills.file'),
             'breadcrumb' => [
                 [
                     'label' => 'Izvozi',
@@ -55,6 +66,14 @@ class ExportController extends Controller
     }
 
     /**
+     * Download a previously generated bills export by filename.
+     */
+    public function downloadBillsFile(string $filename)
+    {
+        return $this->downloadExportFile(self::BILLS_EXPORT_DIR, $filename);
+    }
+
+    /**
      * Show the compenzations export and statistics page.
      *
      * @return \Inertia\Response
@@ -62,6 +81,7 @@ class ExportController extends Controller
     public function compenzations()
     {
         return Inertia::render('Exports/Compenzations', [
+            'files' => $this->listExportFiles(self::COMPENZATIONS_EXPORT_DIR, 'exports.compenzations.file'),
             'breadcrumb' => [
                 [
                     'label' => 'Izvozi',
@@ -72,6 +92,14 @@ class ExportController extends Controller
                 ]
             ]
         ]);
+    }
+
+    /**
+     * Download a previously generated compenzations export by filename.
+     */
+    public function downloadCompenzationsFile(string $filename)
+    {
+        return $this->downloadExportFile(self::COMPENZATIONS_EXPORT_DIR, $filename);
     }
 
     /**
@@ -190,7 +218,11 @@ class ExportController extends Controller
         $dom->formatOutput = true;
         $dom->loadXML($xml->asXML());
 
-        return Response::make($dom->saveXML(), 200, [
+        $xmlContent = $dom->saveXML();
+
+        $this->persistExportFile(self::BILLS_EXPORT_DIR, $filename, $xmlContent);
+
+        return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
