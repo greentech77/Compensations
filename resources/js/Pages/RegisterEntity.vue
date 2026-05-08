@@ -68,6 +68,8 @@ export default {
         }
 
         return {
+            // Začetek na koraku 2: „Povzetek in zaključek“ (indeks je 0‑based).
+            currentStepIndex: 0,
             steps: [
                 {
                     enabled: true,
@@ -90,13 +92,10 @@ export default {
             ]
         }
      },
-
-    created() {
-
-        //if (process.env.MIX_APP_ENV == 'local') {
-            this.currentStepIndex = 1
-        //}
-
+     created() {
+        if (process.env.MIX_APP_ENV == 'local') {
+            this.currentStepIndex = 0
+        }
     },
 
 }
