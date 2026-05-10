@@ -4,10 +4,10 @@
         <Menu>
             <MenuButton
                 as="button"
-                class="flex min-h-[44px] min-w-0 max-w-[min(11rem,46vw)] items-center rounded-md p-2 text-left font-medium hover:bg-gray-200 hover:text-blue-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
+                class="flex min-h-[44px] min-w-0 max-w-[min(11rem,46vw)] lg:max-w-none items-center rounded-md p-2 text-left font-medium hover:bg-gray-200 hover:text-blue-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
             >
                 <UserCircleIcon class="mr-2 h-6 w-6 shrink-0" aria-hidden="true" />
-                <span class="min-w-0 truncate">{{ user.name }}</span>
+                <span class="min-w-0 truncate lg:overflow-visible lg:whitespace-normal">{{ user.name }}</span>
                 <ChevronDownIcon class="ml-1 h-4 w-4 shrink-0" aria-hidden="true" />
             </MenuButton>
             <MenuItems
