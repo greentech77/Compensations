@@ -1,7 +1,7 @@
 <template>
     <Head title="Kompenzacije - Izvoz in statistika" />
 
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <h1 class="text-2xl font-bold mb-6">Kompenzacije</h1>
 
         <div class="bg-white p-6 rounded-md shadow-sm border border-stone">

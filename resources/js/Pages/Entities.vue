@@ -1,10 +1,10 @@
 <template>
     <Head title="Podjetja"/>
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
 
-        <div class="flex justify-between items-center space-x-4 mb-6">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <!-- Search input -->
-            <div class="flex-1 max-w-md">
+            <div class="min-w-0 w-full max-w-md sm:flex-1">
                 <div class="relative">
                     <input
                         type="text"
@@ -17,10 +17,11 @@
                 </div>
             </div>
 
-            <Button class="button button--stone" @click="addEntity()">Dodaj podjetje</Button>
+            <Button class="button button--stone w-full shrink-0 sm:w-auto" @click="addEntity()">Dodaj podjetje</Button>
         </div>
 
-        <table class="bg-white w-full divide-y divide-stone">
+        <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
+        <table class="min-w-[48rem] w-full divide-y divide-stone bg-white">
             <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                 <tr>
                     <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
@@ -60,6 +61,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
         <pagination class="mt-6" :links="entities.links" />
     </div>
 

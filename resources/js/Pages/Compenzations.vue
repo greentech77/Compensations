@@ -1,32 +1,35 @@
 <template>
     <Head title="Kompenzacije"/>
-    <div class="w-full bg-stone-15 p-8 rounded-md">
-        <div class="bg-white border border-stone rounded-md p-6 mb-6">
-            <div class="flex flex-wrap items-end justify-between gap-4">
-                <div class="flex flex-wrap items-end gap-4">
-                    <div class="flex flex-col">
-                        <label class="text-sm font-medium text-gray-700 mb-1">Iskanje</label>
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
+        <div class="mb-6 rounded-md border border-stone bg-white p-4 sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+                <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                    <div class="flex min-w-0 w-full flex-col sm:w-auto sm:max-w-md">
+                        <label class="mb-1 text-sm font-medium text-gray-700">Iskanje</label>
                         <Input
                             type="text"
                             v-model="localFilters.search"
-                            class="w-96"
+                            class="w-full min-w-0"
                             placeholder="Naziv, ID, datum, znesek, diskont ali provizija"
                         />
                     </div>
-                    <Button class="button button--stone" @click="applyFilters()">Filtriraj</Button>
-                    <Button
-                        v-if="hasActiveFilters"
-                        class="button button--stone"
-                        @click="clearFilters()"
-                    >
-                        Počisti
-                    </Button>
+                    <div class="flex flex-wrap gap-2 sm:gap-4">
+                        <Button class="button button--stone" @click="applyFilters()">Filtriraj</Button>
+                        <Button
+                            v-if="hasActiveFilters"
+                            class="button button--stone"
+                            @click="clearFilters()"
+                        >
+                            Počisti
+                        </Button>
+                    </div>
                 </div>
-                <Button class="button button--stone" @click="addcompenzation()">Dodaj kompenzacijo</Button>
+                <Button class="button button--stone w-full shrink-0 sm:w-auto" @click="addcompenzation()">Dodaj kompenzacijo</Button>
             </div>
         </div>
 
-        <table class="bg-white w-full divide-y divide-stone">
+        <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
+        <table class="min-w-[64rem] w-full divide-y divide-stone bg-white">
             <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                 <tr>
                     <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue cursor-pointer select-none" @click="toggleSort('name')">
@@ -73,7 +76,7 @@
                         {{formatPercentage(compenzation.realization_agreement.commission)}}
                     </td>
                     <td class="pl-6 py-4 whitespace-nowrap" @click.stop>
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
                             <a
                                 v-if="compenzation.proposal && compenzation.proposal.file_path"
                                 :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'proposal' })"
@@ -106,6 +109,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
         <pagination class="mt-6" :links="compenzations.links" />
     </div>
 

@@ -1,27 +1,30 @@
 <template>
     <Head title="Statistika kompenzacij" />
 
-    <div class="w-full bg-stone-15 p-8 rounded-md">
-        <div class="flex justify-between items-end space-x-4 mb-6">
-            <div class="flex space-x-4 items-end">
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 mb-1">Datum od</label>
-                    <Input type="date" v-model="localFilters.date_from" class="w-48" />
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
+        <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                <div class="flex w-full flex-col sm:w-auto sm:min-w-[10rem]">
+                    <label class="mb-1 text-sm font-medium text-gray-700">Datum od</label>
+                    <Input type="date" v-model="localFilters.date_from" class="w-full" />
                 </div>
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 mb-1">Datum do</label>
-                    <Input type="date" v-model="localFilters.date_to" class="w-48" />
+                <div class="flex w-full flex-col sm:w-auto sm:min-w-[10rem]">
+                    <label class="mb-1 text-sm font-medium text-gray-700">Datum do</label>
+                    <Input type="date" v-model="localFilters.date_to" class="w-full" />
                 </div>
-                <Button class="button button--stone" @click="applyFilters">Filtriraj</Button>
-                <Button v-if="hasActiveFilters" class="button button--stone" @click="clearFilters">Počisti</Button>
+                <div class="flex flex-wrap gap-2">
+                    <Button class="button button--stone" @click="applyFilters">Filtriraj</Button>
+                    <Button v-if="hasActiveFilters" class="button button--stone" @click="clearFilters">Počisti</Button>
+                </div>
             </div>
-            <div class="flex space-x-4">
-                <Button class="button button--stone" @click="exportStats">Izvozi statistiko</Button>
-                <Button class="button button--stone" @click="backToCompenzations">Nazaj</Button>
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
+                <Button class="button button--stone w-full sm:w-auto" @click="exportStats">Izvozi statistiko</Button>
+                <Button class="button button--stone w-full sm:w-auto" @click="backToCompenzations">Nazaj</Button>
             </div>
         </div>
 
-        <table class="bg-white w-full divide-y divide-stone">
+        <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
+        <table class="min-w-[56rem] w-full divide-y divide-stone bg-white">
             <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                 <tr>
                     <th class="pl-6 py-3 rounded-tl-md bg-blue">Kompenzacija</th>
@@ -47,8 +50,9 @@
                 </tr>
             </tbody>
         </table>
+        </div>
 
-        <div class="mt-6 bg-white rounded-md p-4 shadow-sm border border-stone">
+        <div class="mt-6 rounded-md border border-stone bg-white p-4 shadow-sm">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <div class="text-xs uppercase text-gray-500">Število kompenzacij</div>

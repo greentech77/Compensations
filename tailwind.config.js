@@ -50,6 +50,9 @@ export default {
                 xl: '0.875rem',
                 '2xl': '1.125rem',
             },
+            maxWidth: {
+                '8xl': '90rem',
+            },
         },
         container: {
             center: true,
