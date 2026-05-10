@@ -1,68 +1,100 @@
 <template>
     <form @submit.prevent="onSubmit" class="space-y-4">
-      <section class="bg-white rounded-md p-6 filter drop-shadow space-y-4">
+      <section class="bg-white rounded-md p-6 filter drop-shadow space-y-5">
         <h2 class="text-lg font-medium">Osnovni podatki</h2>
-        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
-          <InputGroup class="w-full md:w-1/2 flex-auto" v-model="form.compenzationDate" name="compenzationDate" label="Datum" :error="form.errors.compenzationDate" type="date" @change="form.clearErrors('compenzationDate')"/>
-          <InputGroup class="w-full md:w-1/2 flex-auto" type="currency" v-model="form.compenzationAmount" name="compenzationAmount" label="Znesek" :error="form.errors.compenzationAmount" @change="form.clearErrors('compenzationAmount')"/>
+
+        <!-- Datum + Znesek -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+          <InputGroup
+            v-model="form.compenzationDate"
+            name="compenzationDate"
+            label="Datum"
+            type="date"
+            :error="form.errors.compenzationDate"
+            @change="form.clearErrors('compenzationDate')"
+          />
+          <InputGroup
+            type="currency"
+            v-model="form.compenzationAmount"
+            name="compenzationAmount"
+            label="Znesek"
+            :error="form.errors.compenzationAmount"
+            @change="form.clearErrors('compenzationAmount')"
+          />
         </div>
 
-
-        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap items-center">
-          <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.compenzationDiscount" label="Diskont" :error="form.errors.compenzationDiscount" @change="form.clearErrors('compenzationDiscount')" />
-          <div class="w-full md:w-1/3 flex-auto flex items-center">
-              <Checkbox 
-                  v-model="form.discountWithVat" 
-                  name="discountWithVat" 
-                  label="Z DDV" 
-                  class="flex items-center"
-              />
+        <!-- Diskont + Z DDV + Provizija -->
+        <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-x-6 gap-y-4 items-end">
+          <InputGroup
+            type="percent"
+            v-model="form.compenzationDiscount"
+            label="Diskont"
+            :error="form.errors.compenzationDiscount"
+            @change="form.clearErrors('compenzationDiscount')"
+          />
+          <div class="flex items-center pb-0.5">
+            <Checkbox
+              v-model="form.discountWithVat"
+              name="discountWithVat"
+              label="Z DDV"
+              class="flex items-center"
+            />
           </div>
-          <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="form.compenzationCommission" label="Provizija" :error="form.errors.compenzationCommission" @change="form.clearErrors('compenzationCommission')" />
-      </div>
-
-        <!-- Entities selection -->
-        <div v-for="(component, index) in components" :key="index" class="flex space-x-4 items-end">
-          <InputGroup 
-            class="flex-1" 
-            type="combobox" 
-            :name="'compenzationEntities[' + index + ']'" 
-            :options="getAvailableOptions(index)" 
-            v-model="component.data.compenzationEntity.value" 
-            label="Stranka" 
-            :error="form.errors['compenzationEntities.' + index]"
-            @change="clearDynamicError(index, 'compenzationEntity')"/>
-          
-          <!-- Button to remove an entity (if more than one exists) -->
-          <Button 
-            v-if="index > 0"
-            class="button button--danger h-10 mb-0.5" 
-            @click="removeComponent(index)" 
-            :loading="form.processing">
-            Odstrani
-          </Button>
+          <InputGroup
+            type="percent"
+            v-model="form.compenzationCommission"
+            label="Provizija"
+            :error="form.errors.compenzationCommission"
+            @change="form.clearErrors('compenzationCommission')"
+          />
         </div>
 
-        <!-- Button to add a new entity -->
-        <div v-if="hasAvailableEntities" class="flex justify-start">
-          <Button 
-            class="button button--stone" 
-            @click="addComponent" 
-            :loading="form.processing">
-            Dodaj stranko
-          </Button>
+        <!-- Stranke -->
+        <div class="space-y-3">
+          <div
+            v-for="(component, index) in components"
+            :key="index"
+            class="flex gap-x-4 items-end"
+          >
+            <InputGroup
+              class="flex-1"
+              type="combobox"
+              :name="'compenzationEntities[' + index + ']'"
+              :options="getAvailableOptions(index)"
+              v-model="component.data.compenzationEntity.value"
+              label="Stranka"
+              :error="form.errors['compenzationEntities.' + index]"
+              @change="clearDynamicError(index, 'compenzationEntity')"
+            />
+            <Button
+              v-if="index > 0"
+              class="button button--danger h-10 mb-0.5"
+              @click="removeComponent(index)"
+              :loading="form.processing"
+            >
+              Odstrani
+            </Button>
+          </div>
+
+          <div v-if="hasAvailableEntities">
+            <Button
+              class="button button--stone"
+              @click="addComponent"
+              :loading="form.processing"
+            >
+              Dodaj stranko
+            </Button>
+          </div>
         </div>
       </section>
-  
-      <section class="flex justify-end space-x-4">
-        <Button class="button button--white" :disabled="form.processing" @click="onBack">Nazaj</Button>
-        <Button class="button button--stone" type="submit" :loading="form.processing">Naprej</Button>
-      </section>
 
-       <!-- Button to clear components -->
-       <section class="flex justify-end space-x-4 mt-4">
-         <Button class="button button--danger" @click="clearComponents">Izprazni polja</Button>
-        </section>
+      <section class="flex items-center justify-between">
+        <Button class="button button--danger" @click="clearComponents">Izprazni polja</Button>
+        <div class="flex gap-x-3">
+          <Button class="button button--white" :disabled="form.processing" @click="onBack">Nazaj</Button>
+          <Button class="button button--stone" type="submit" :loading="form.processing">Naprej</Button>
+        </div>
+      </section>
     </form>
   </template>
   

@@ -10,7 +10,7 @@
 
             <div class="lg:w-3/4 w-full mt-4 lg:mt-0 ml-0 sm:ml-10 lg:ml-0 space-y-4">
                 <section class="bg-white rounded-md p-6 filter drop-shadow relative z-10">
-                    <form @submit.prevent="onSubmitSection(formdata)" class="space-y-4">
+                    <form @submit.prevent="onSubmitSection(formdata)" class="space-y-5">
                         <div class="flex items-center">
                             <h2 class="text-lg font-medium flex-auto">Osnovni podatki</h2>
                             <button class="button button--icon pl-3 text-stone hover:text-stone-hover" :disabled="formdata.edit" @click.prevent="toggleEditMode(formdata)">
@@ -18,9 +18,9 @@
                             </button>
                         </div>
                     
-                        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
+                        <!-- Datum + Znesek -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                             <InputGroup 
-                                class="w-full md:w-1/2 flex-auto" 
                                 v-model="formdata.form.date"
                                 label="Datum" 
                                 type="date"
@@ -28,12 +28,19 @@
                                 @change="formdata.form.clearErrors('date')" 
                                 :edit="formdata.edit"
                             />
-                            <InputGroup class="w-full md:w-1/2 flex-auto" type="currency" v-model="formdata.form.amount" label="Znesek" :error="formdata.form.errors.amount" @change="formdata.form.clearErrors('amount')" :edit="formdata.edit"/>
+                            <InputGroup
+                                type="currency"
+                                v-model="formdata.form.amount"
+                                label="Znesek"
+                                :error="formdata.form.errors.amount"
+                                @change="formdata.form.clearErrors('amount')"
+                                :edit="formdata.edit"
+                            />
                         </div>
 
-                        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
+                        <!-- Datum plačila + Zaključena -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 items-end">
                             <InputGroup 
-                                class="w-full md:w-1/2 flex-auto" 
                                 v-model="formdata.form.date_payed"
                                 label="Datum plačila" 
                                 type="date"
@@ -41,68 +48,86 @@
                                 @change="formdata.form.clearErrors('date_payed')" 
                                 :edit="formdata.edit"
                             />
-                            <div class="w-full md:w-1/2 flex-auto flex items-center">
+                            <div class="flex items-center pb-0.5">
                                 <Checkbox 
                                     v-model="formdata.form.finished"
                                     name="finished" 
                                     label="Zaključena" 
                                     class="flex items-center"
-                                    :disabled="!formdata.edit"
+                                    :edit="formdata.edit"
                                 />
                             </div>
                         </div>
 
-                        <div class="flex space-y-4 md:space-y-0 md:space-x-4 flex-wrap md:flex-nowrap">
-                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="formdata.form.discount" label="Diskont" :error="formdata.form.errors.discount" @change="formdata.form.clearErrors('discount')" :edit="formdata.edit"/> 
-                            <div class="w-full md:w-1/3 flex-auto flex items-center">
+                        <!-- Diskont + Z DDV + Provizija -->
+                        <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-x-6 gap-y-4 items-end">
+                            <InputGroup
+                                type="percent"
+                                v-model="formdata.form.discount"
+                                label="Diskont"
+                                :error="formdata.form.errors.discount"
+                                @change="formdata.form.clearErrors('discount')"
+                                :edit="formdata.edit"
+                            />
+                            <div class="flex items-center pb-0.5">
                                 <Checkbox 
                                     v-model="formdata.form.with_ddv"
                                     name="discountWithVat" 
                                     label="Z DDV" 
                                     class="flex items-center"
-                                    :disabled="!formdata.edit"
+                                    :edit="formdata.edit"
                                 />
                             </div>
-                            <InputGroup class="w-full md:w-1/3 flex-auto" type="percent" v-model="formdata.form.commission" label="Provizija" :error="formdata.form.errors['formattedCommission']" @change="formdata.form.clearErrors('formattedCommission')" :edit="formdata.edit"/>
-                        </div>
-
-                        <!-- Entities selection -->
-                        <div v-for="(entity, index) in formdata.form.entities" :key="index" class="flex space-x-4 items-end">
-                            <InputGroup 
-                                class="flex-1" 
-                                type="select" 
-                                :name="'compenzationEntities[' + index + ']'" 
-                                :options="getAvailableOptions(index)" 
-                                v-model="formdata.form.entities[index]"
-                                label="Stranka" 
-                                :error="formdata.form.errors['compenzationEntities.' + index]"
-                                @change="formdata.form.clearErrors('compenzationEntities.' + index)"
+                            <InputGroup
+                                type="percent"
+                                v-model="formdata.form.commission"
+                                label="Provizija"
+                                :error="formdata.form.errors['formattedCommission']"
+                                @change="formdata.form.clearErrors('formattedCommission')"
                                 :edit="formdata.edit"
                             />
-                            
-                            <!-- Button to remove an entity (if more than one exists) -->
-                            <Button 
-                                v-if="index > 0 && formdata.edit"
-                                class="button button--danger h-10 mb-0.5" 
-                                @click="removeComponent(index)" 
-                                :loading="formdata.form.processing"
-                            >
-                                Odstrani
-                            </Button>
                         </div>
 
-                        <!-- Button to add a new entity -->
-                        <div v-if="formdata.edit && hasAvailableEntities" class="flex justify-start">
-                            <Button 
-                                class="button button--stone" 
-                                @click="addComponent" 
-                                :loading="formdata.form.processing"
+                        <!-- Stranke -->
+                        <div class="space-y-3">
+                            <div
+                                v-for="(entity, index) in formdata.form.entities"
+                                :key="index"
+                                class="flex gap-x-4 items-end"
                             >
-                                Dodaj stranko
-                            </Button>
+                                <InputGroup 
+                                    class="flex-1"
+                                    type="select" 
+                                    :name="'compenzationEntities[' + index + ']'" 
+                                    :options="getAvailableOptions(index)" 
+                                    v-model="formdata.form.entities[index]"
+                                    label="Stranka" 
+                                    :error="formdata.form.errors['compenzationEntities.' + index]"
+                                    @change="formdata.form.clearErrors('compenzationEntities.' + index)"
+                                    :edit="formdata.edit"
+                                />
+                                <Button 
+                                    v-if="index > 0 && formdata.edit"
+                                    class="button button--danger h-10 mb-0.5" 
+                                    @click="removeComponent(index)" 
+                                    :loading="formdata.form.processing"
+                                >
+                                    Odstrani
+                                </Button>
+                            </div>
+
+                            <div v-if="formdata.edit && hasAvailableEntities">
+                                <Button 
+                                    class="button button--stone" 
+                                    @click="addComponent" 
+                                    :loading="formdata.form.processing"
+                                >
+                                    Dodaj stranko
+                                </Button>
+                            </div>
                         </div>
 
-                        <div class="flex justify-end space-x-4" v-if="formdata.edit">
+                        <div class="flex justify-end gap-x-3" v-if="formdata.edit">
                             <Button class="button button--white" @click.prevent="resetSection(formdata)" :disabled="formdata.form.processing">Prekliči</Button>
                             <Button class="button button--stone" type="submit" :loading="formdata.form.processing">Shrani</Button>
                         </div>
