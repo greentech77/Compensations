@@ -25,7 +25,7 @@
         <div v-for="(component, index) in components" :key="index" class="flex space-x-4 items-end">
           <InputGroup 
             class="flex-1" 
-            type="select" 
+            type="combobox" 
             :name="'compenzationEntities[' + index + ']'" 
             :options="getAvailableOptions(index)" 
             v-model="component.data.compenzationEntity.value" 
