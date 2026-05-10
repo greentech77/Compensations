@@ -59,7 +59,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone">
-                <tr v-for="compenzation in compenzations.data" :key="compenzation.id" class="h-20 cursor-pointer hover:bg-gray-200" @click="viewCompenzation(compenzation)">
+                <tr v-for="compenzation in compenzations.data" :key="compenzation.id" class="cursor-pointer hover:bg-gray-200" @click="viewCompenzation(compenzation)">
                     <td class="pl-6 py-4 whitespace-nowrap">
                         <strong>{{compenzation.name}}</strong>
                     </td>
@@ -75,8 +75,8 @@
                     <td class="pl-6 py-4 whitespace-nowrap">
                         {{formatPercentage(compenzation.realization_agreement.commission)}}
                     </td>
-                    <td class="pl-6 py-4 whitespace-nowrap" @click.stop>
-                        <div class="flex flex-wrap items-center gap-2">
+                    <td class="pl-6 py-4" @click.stop>
+                        <div class="flex flex-col lg:flex-row lg:flex-wrap items-start lg:items-center gap-1 lg:gap-2">
                             <a
                                 v-if="compenzation.proposal && compenzation.proposal.file_path"
                                 :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'proposal' })"
