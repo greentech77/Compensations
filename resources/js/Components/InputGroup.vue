@@ -95,8 +95,11 @@ export default {
                     if (value == null || value === '') {
                         return undefined
                     }
-                    const currValue = parseFloat(value);
-                    return !isNaN(currValue) ? currValue.toFixed(2).replace('.', ',') + ' €' : undefined
+                    const currValue = parseFloat(value)
+                    if (isNaN(currValue)) return undefined
+                    const currParts = currValue.toFixed(2).split('.')
+                    currParts[0] = currParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                    return currParts.join(',') + ' €'
                 default:
                     return value
             }

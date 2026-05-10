@@ -17,7 +17,7 @@ export default {
     setup(props) {
 
         const options = {
-            locale: 'sl',
+            locale: 'de',
             currency: 'EUR',
         }
 
@@ -28,7 +28,8 @@ export default {
 
         if (props.type =='currency') {
             options['precision'] = 2
-            options['currencyDisplay'] = 'code'
+            options['currencyDisplay'] = 'symbol'
+            // useGrouping defaults to true: shows "3.023,91 €" when blurred, "3023,91" when focused
         }
 
         const { inputRef, setValue } = useCurrencyInput(options)

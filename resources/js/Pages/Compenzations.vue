@@ -196,11 +196,11 @@ export default {
             return `${day}.${month}.${year}`; // Format in DD.MM.YYYY
         },
         formatCurrency(value) {
-            // Convert to locale-specific format with `,` as the decimal separator and `.` as thousands separator
-            return new Intl.NumberFormat('sl-SI', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value) + ' €'; // Add the Euro symbol at the end
+            const num = parseFloat(value)
+            if (isNaN(num)) return ''
+            const parts = num.toFixed(2).split('.')
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+            return parts.join(',') + ' €'
         },
         formatPercentage(value) {
           if (value == null || value === '' || isNaN(Number(value))) return '';
