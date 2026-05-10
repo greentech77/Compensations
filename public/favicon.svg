@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Compenzations">
+    <title>Compenzations</title>
+    <rect width="64" height="64" rx="12" fill="#002640"/>
+    <!-- Monogram "K" (KORENJAK) -->
+    <rect x="16" y="14" width="8" height="36" fill="#FFFFFF"/>
+    <path d="M 24 24 L 48 14 L 50 14 L 50 18 L 24 32 Z" fill="#FFFFFF"/>
+    <path d="M 24 32 L 50 46 L 50 50 L 48 50 L 24 40 Z" fill="#FFFFFF"/>
+    <!-- Brand accent (orange line, mirrors PDF logo subtitle) -->
+    <rect x="16" y="54" width="32" height="3" rx="1.5" fill="#ED7D31"/>
+</svg>

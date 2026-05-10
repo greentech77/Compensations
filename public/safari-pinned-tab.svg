@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Compenzations">
+    <title>Compenzations</title>
+    <!-- Single-color silhouette of the K monogram for Safari pinned-tab.
+         Safari recolors this via the link[rel="mask-icon"] color attribute. -->
+    <rect x="16" y="14" width="8" height="36"/>
+    <path d="M 24 24 L 48 14 L 50 14 L 50 18 L 24 32 Z"/>
+    <path d="M 24 32 L 50 46 L 50 50 L 48 50 L 24 40 Z"/>
+    <rect x="16" y="54" width="32" height="3" rx="1.5"/>
+</svg>
