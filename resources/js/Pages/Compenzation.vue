@@ -1,7 +1,7 @@
 <template>
     <Head :title="compenzation.name"/>
 
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <section class="flex flex-wrap lg:flex-nowrap space-x-4">
             <div class="bg-white rounded-md p-6 filter drop-shadow lg:w-1/4 space-y-4">
                 <h1 class="text-2xl font-medium ">{{compenzation.name}}</h1>

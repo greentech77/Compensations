@@ -1,7 +1,7 @@
 <template>
     <Head title="Nadzorna plošča" />
 
-    <div class="w-full space-y-6 rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 space-y-6 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <!-- 1. KPI strip ------------------------------------------------- -->
         <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             <div class="bg-white rounded-md border border-stone p-4 shadow-card">

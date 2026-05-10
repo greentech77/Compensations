@@ -1,6 +1,6 @@
 <template>
     <Head title="Kompenzacije"/>
-    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <div class="mb-6 rounded-md border border-stone bg-white p-4 sm:p-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
                 <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">

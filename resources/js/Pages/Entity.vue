@@ -1,7 +1,7 @@
 <template>
     <Head :title="entity.company_name"/>
 
-    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <section class="flex flex-wrap gap-4 lg:flex-nowrap lg:gap-0 lg:space-x-4">
             <div class="w-full space-y-4 rounded-md bg-white p-4 shadow-card filter drop-shadow sm:p-6 lg:w-1/4">
                 <h1 class="text-2xl font-medium ">{{entity.company_name}}</h1>
@@ -58,9 +58,9 @@
         </section>        
     </div>
 
-    <div class="mx-auto w-full max-w-8xl flex-auto justify-center px-0 py-6 md:py-12">
+    <div class="mx-auto w-full max-w-8xl min-[2100px]:max-w-none flex-auto justify-center px-0 py-6 md:py-12">
         <h2 class="mb-5 flex-auto text-lg font-medium">Kompenzacije</h2>
-        <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+        <div class="w-full max-w-none rounded-md bg-stone-15 p-4 md:p-8">
             <div v-if="entity.compenzations && entity.compenzations.length > 0">
                 <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
                 <table class="min-w-[56rem] w-full divide-y divide-stone bg-white">

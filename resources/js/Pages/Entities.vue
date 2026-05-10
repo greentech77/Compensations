@@ -1,6 +1,6 @@
 <template>
     <Head title="Podjetja"/>
-    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
 
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <!-- Search input -->

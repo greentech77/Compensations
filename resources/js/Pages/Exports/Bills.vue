@@ -1,7 +1,7 @@
 <template>
     <Head title="Izvoz računov" />
     
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <h1 class="text-2xl font-bold mb-6">Izvoz računov</h1>
 
         <div class="space-y-6">

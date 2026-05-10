@@ -1,6 +1,6 @@
 <template>
     <Head title="Računi"/>
-    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <h2 class="text-2xl font-medium mb-6">Računi</h2>
 
         <!-- Form for creating specification -->

@@ -1,7 +1,7 @@
 <template>
     <Head title="Statistika kompenzacij" />
 
-    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+    <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
         <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
                 <div class="flex w-full flex-col sm:w-auto sm:min-w-[10rem]">
