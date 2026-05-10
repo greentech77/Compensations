@@ -1,80 +1,72 @@
 <template>
-    
+
     <div class="min-h-screen flex">
 
-        <Sidebar class="w-80 pt-[calc(var(--top-bar-height)*2+var(--main-bar-height))]">
-            <nav class="w-full text-lg">
-                <ul class="space-y-6 my-3">
-                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('dashboard')}">
-                        <Link :href="route('dashboard')">
-                            <HomeIcon class="w-6 h-6 inline-block mr-4"/>Nadzorna plošča
-                        </Link>
-                    </li>
-                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('entities')}">
-                        <Link :href="route('entities')">
-                            <OfficeBuildingIcon class="w-6 h-6 inline-block mr-4"/>Podjetja
-                        </Link>
-                    </li>
-                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('compenzations')}">
-                        <Link :href="route('compenzations')">
-                            <CurrencyEuroIcon class="w-6 h-6 inline-block mr-4"/>Kompenzacije
-                        </Link>
-                    </li>
-                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('bills')}">
-                        <Link :href="route('bills')">
-                            <DocumentTextIcon class="w-6 h-6 inline-block mr-4"/>Računi
-                        </Link>
-                    </li>
-                    <li class="hover:text-gray-400 text-sm uppercase tracking-wider" :class="{'text-orange hover:text-orange-hover': activeRoute('exports')}">
-                        <Link :href="route('exports.index')">
-                            <DocumentReportIcon class="w-6 h-6 inline-block mr-4"/>Izvozi
-                        </Link>
-                    </li>
-                </ul>
-            </nav>
+        <Sidebar class="hidden w-80 pt-[calc(var(--top-bar-height)*2+var(--main-bar-height))] md:block">
+            <AdminNavLinks />
         </Sidebar>
 
-        <div class="flex-auto">
-            <header class="md:mx-4 sticky top-0 md:top-[calc(var(--top-bar-height)*-1)] z-20">
-                <div class="hidden md:block bg-blue md:rounded-b-md h-[var(--top-bar-height)]"></div>
-                <div class="flex flex-row items-stretch border-b border-blue h-[var(--main-bar-height)] bg-white">
-                    <div class="h-full px-4 flex w-full">
-                        <div class="h-full flex items-center w-[210px]">
-                            <Link :href="route('home')">
-                                <!--img src="@/../images/BTN-logo.svg" alt="BTNaložbe logo"-->
+        <div class="min-w-0 flex-auto">
+            <header class="sticky top-0 z-20 md:mx-4 md:top-[calc(var(--top-bar-height)*-1)]">
+                <div class="hidden h-[var(--top-bar-height)] bg-blue md:block md:rounded-b-md"></div>
+                <div class="flex h-[var(--main-bar-height)] flex-row items-stretch border-b border-blue bg-white">
+                    <div class="flex h-full w-full min-w-0 items-center px-2 sm:px-4">
+                        <button
+                            type="button"
+                            class="mr-2 inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-md text-blue hover:bg-stone-15 md:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                            aria-label="Odpri meni"
+                            :aria-expanded="mobileNavOpen"
+                            aria-controls="admin-mobile-nav"
+                            @click="mobileNavOpen = true"
+                        >
+                            <MenuIcon class="h-7 w-7" aria-hidden="true" />
+                        </button>
+                        <div class="flex min-w-0 flex-1 items-center sm:w-[210px] sm:flex-none">
+                            <Link
+                                :href="route('home')"
+                                class="truncate py-2 text-blue hover:text-blue-hover focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                            >
                                 Domov
                             </Link>
                         </div>
                     </div>
-                    <div class="pr-4 flex h-full items-center flex-none">
-                        <User :logout-url="route('logout')"/>
+                    <div class="flex h-full flex-none items-center pr-2 sm:pr-4">
+                        <User :logout-url="route('logout')" />
                     </div>
                 </div>
-                <div class="border-b border-blue h-[var(--top-bar-height)] px-4 flex items-center space-x-4 bg-white">
-                    <span>
+                <div
+                    class="flex h-[var(--top-bar-height)] min-h-[var(--top-bar-height)] items-center gap-2 overflow-x-auto whitespace-nowrap border-b border-blue bg-white px-4 text-sm"
+                >
+                    <span class="shrink-0">
                         Administracija
                     </span>
                     <template v-for="item in breadcrumb" :key="item.label">
-                        <ChevronRightIcon class="w-5 h-5 inline-block"/>
-                        <Link v-if="item.route" :href="item.route" class="hover:text-blue-hover">
-                            {{item.label}}
+                        <ChevronRightIcon class="h-5 w-5 shrink-0 inline-block" aria-hidden="true" />
+                        <Link
+                            v-if="item.route"
+                            :href="item.route"
+                            class="shrink-0 hover:text-blue-hover focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                        >
+                            {{ item.label }}
                         </Link>
-                        <span v-else>
-                            {{item.label}}
+                        <span v-else class="shrink-0">
+                            {{ item.label }}
                         </span>
                     </template>
-                    
+
                 </div>
             </header>
             <MainBlock>
-                <slot/>
+                <slot />
             </MainBlock>
         </div>
 
     </div>
-    
-    <Modal/>
-    <Toast/>
+
+    <AdminMobileDrawer :open="mobileNavOpen" @close="mobileNavOpen = false" />
+
+    <Modal />
+    <Toast />
 
 </template>
 
@@ -82,37 +74,38 @@
 import { Link } from '@inertiajs/vue3'
 import Sidebar from '@/Layouts/Sidebar.vue'
 import MainBlock from '@/Layouts/MainBlock.vue'
-import { ChevronRightIcon, HomeIcon, UserIcon, DocumentReportIcon, ChartPieIcon, OfficeBuildingIcon, CurrencyEuroIcon, DocumentTextIcon } from '@heroicons/vue/outline';
-import currentRoute from '@/mixins/currentRoute'
+import AdminNavLinks from '@/Components/AdminNavLinks.vue'
+import AdminMobileDrawer from '@/Components/AdminMobileDrawer.vue'
+import { ChevronRightIcon, MenuIcon } from '@heroicons/vue/outline'
 import User from '@/Components/User.vue'
 import Modal from '@/Components/Modal.vue'
 import Toast from '@/Components/Toast.vue'
 
 export default {
 
-    mixins: [currentRoute],
-
     components: {
-        Sidebar, 
+        Sidebar,
         MainBlock,
+        AdminNavLinks,
+        AdminMobileDrawer,
         Link,
         ChevronRightIcon,
-        HomeIcon, 
-        UserIcon,
-        DocumentReportIcon,
-        ChartPieIcon,
-        OfficeBuildingIcon,
-        CurrencyEuroIcon,
-        DocumentTextIcon,
+        MenuIcon,
         User,
         Modal,
-        Toast
+        Toast,
+    },
+
+    data() {
+        return {
+            mobileNavOpen: false,
+        }
     },
 
     computed: {
         breadcrumb() {
             return this.$page.props.breadcrumb
-        }
+        },
     },
 
 }
