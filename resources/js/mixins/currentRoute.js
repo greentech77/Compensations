@@ -14,6 +14,10 @@ export default {
         })
     },
 
+    mounted() {
+        this.currentRoute = this.route().current()
+    },
+
     methods: {
         activeRoute(name) {
             return this.currentRoute.startsWith(name); 

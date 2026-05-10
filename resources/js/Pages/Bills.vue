@@ -1,13 +1,13 @@
 <template>
     <Head title="Računi"/>
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
         <h2 class="text-2xl font-medium mb-6">Računi</h2>
 
         <!-- Form for creating specification -->
-        <div class="bg-white rounded-md p-6 filter drop-shadow mb-6">
+        <div class="mb-6 rounded-md bg-white p-4 shadow-card filter drop-shadow sm:p-6">
             <form @submit.prevent="createSpecification" class="space-y-4">
-                <div class="flex flex-wrap gap-4 items-end">
-                    <div class="flex flex-col flex-1 min-w-[200px]">
+                <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                    <div class="flex min-w-0 w-full flex-col sm:flex-1 sm:min-w-[200px]">
                         <label class="text-sm font-medium text-gray-700 mb-1">Stranka:</label>
                         <Input
                             type="combobox"
@@ -23,7 +23,7 @@
                             {{ formErrors.error || errors.error }}
                         </span>
                     </div>
-                    <div class="flex flex-col min-w-[150px]">
+                    <div class="flex w-full flex-col sm:w-auto sm:min-w-[150px]">
                         <label class="text-sm font-medium text-gray-700 mb-1">Od datuma:</label>
                         <Input
                             type="date"
@@ -33,7 +33,7 @@
                             :startingView="'year'"
                         />
                     </div>
-                    <div class="flex flex-col min-w-[150px]">
+                    <div class="flex w-full flex-col sm:w-auto sm:min-w-[150px]">
                         <label class="text-sm font-medium text-gray-700 mb-1">Do datuma:</label>
                         <Input
                             type="date"
@@ -43,10 +43,10 @@
                             :startingView="'year'"
                         />
                     </div>
-                    <div class="flex items-end">
+                    <div class="flex w-full items-end sm:w-auto">
                         <Button 
                             type="submit" 
-                            class="button button--stone"
+                            class="button button--stone w-full sm:w-auto"
                             :disabled="isSubmitting"
                             :loading="isSubmitting"
                         >
@@ -58,7 +58,8 @@
         </div>
 
         <!-- Bills table -->
-        <table class="bg-white w-full divide-y divide-stone">
+        <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
+        <table class="min-w-[56rem] w-full divide-y divide-stone bg-white">
             <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                 <tr>
                     <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue">
@@ -125,6 +126,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
         <pagination class="mt-6" :links="bills.links" />
     </div>
 </template>

@@ -1,14 +1,14 @@
 <template>
     <Head :title="entity.company_name"/>
 
-    <div class="w-full bg-stone-15 p-8 rounded-md">
-        <section class="flex flex-wrap lg:flex-nowrap space-x-4">
-            <div class="bg-white rounded-md p-6 filter drop-shadow lg:w-1/4 space-y-4">
+    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
+        <section class="flex flex-wrap gap-4 lg:flex-nowrap lg:gap-0 lg:space-x-4">
+            <div class="w-full space-y-4 rounded-md bg-white p-4 shadow-card filter drop-shadow sm:p-6 lg:w-1/4">
                 <h1 class="text-2xl font-medium ">{{entity.company_name}}</h1>
             </div>
 
-            <div class="lg:w-3/4 w-full mt-4 lg:mt-0 ml-0 sm:ml-10 lg:ml-0 space-y-4">
-                <section class="bg-white rounded-md p-6 filter drop-shadow relative z-10">
+            <div class="mt-4 ml-0 w-full space-y-4 sm:ml-10 lg:mt-0 lg:ml-0 lg:w-3/4">
+                <section class="relative z-10 rounded-md bg-white p-4 shadow-card filter drop-shadow sm:p-6">
                     <form @submit.prevent="onSubmitSection(formdata)" class="space-y-4">
                         <div class="flex items-center">
                             <h2 class="text-lg font-medium flex-auto">Osnovni podatki</h2>
@@ -58,11 +58,12 @@
         </section>        
     </div>
 
-    <div class="max-w-8xl mx-auto w-full flex-auto justify-center py-12">
-        <h2 class="text-lg mb-5 font-medium flex-auto">Kompenzacije</h2>
-        <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="mx-auto w-full max-w-8xl flex-auto justify-center px-0 py-6 md:py-12">
+        <h2 class="mb-5 flex-auto text-lg font-medium">Kompenzacije</h2>
+        <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
             <div v-if="entity.compenzations && entity.compenzations.length > 0">
-                <table class="bg-white w-full divide-y divide-stone">
+                <div class="-mx-1 overflow-x-auto rounded-md border border-stone bg-white touch-pan-x md:mx-0">
+                <table class="min-w-[56rem] w-full divide-y divide-stone bg-white">
                     <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                         <tr>
                             <th scope="col" class="pl-6 py-3 rounded-tl-md bg-blue cursor-pointer select-none" @click="toggleSort('name')">
@@ -111,7 +112,7 @@
                                 {{ formatPercentage(compenzation.realization_agreement?.commission) }}
                             </td>
                             <td class="pl-6 py-4 text-sm">
-                                <div class="flex space-x-2">
+                                <div class="flex flex-wrap gap-2">
                                     <a 
                                         v-if="compenzation.proposal && compenzation.proposal.file_path"
                                         :href="route('entities.compenzation.pdf.download', { 
@@ -156,6 +157,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
             <div v-else class="bg-white p-8 text-center text-gray-500">
                 Ni kompenzacij za to podjetje.

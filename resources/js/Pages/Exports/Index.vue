@@ -1,7 +1,7 @@
 <template>
     <Head title="Izvozi" />
 
-    <div class="w-full bg-stone-15 p-8 rounded-md">
+    <div class="w-full rounded-md bg-stone-15 p-4 md:p-8">
         <h1 class="text-2xl font-bold mb-6">Izvozi</h1>
         <p class="text-gray-600 mb-8">
             Izberi tip izvoza in nadaljuj na ustrezno stran.

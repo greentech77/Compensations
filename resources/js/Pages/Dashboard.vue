@@ -1,7 +1,7 @@
 <template>
     <Head title="Nadzorna plošča" />
 
-    <div class="w-full bg-stone-15 p-8 rounded-md space-y-6">
+    <div class="w-full space-y-6 rounded-md bg-stone-15 p-4 md:p-8">
         <!-- 1. KPI strip ------------------------------------------------- -->
         <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             <div class="bg-white rounded-md border border-stone p-4 shadow-card">
@@ -59,13 +59,14 @@
         <!-- 3. Tables row: latest compenzations + bills ------------------ -->
         <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div class="bg-white rounded-md border border-stone shadow-card overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-stone-15">
+                <div class="flex flex-col gap-2 border-b border-stone-15 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <h2 class="text-lg font-semibold">Zadnje kompenzacije</h2>
                     <Link :href="route('compenzations')" class="text-sm text-blue hover:text-blue-hover">
                         Vse kompenzacije →
                     </Link>
                 </div>
-                <table class="w-full divide-y divide-stone-15">
+                <div class="overflow-x-auto touch-pan-x">
+                <table class="min-w-[36rem] w-full divide-y divide-stone-15">
                     <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                         <tr>
                             <th class="pl-6 py-3 bg-blue">Naziv</th>
@@ -103,16 +104,18 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="bg-white rounded-md border border-stone shadow-card overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-stone-15">
+                <div class="flex flex-col gap-2 border-b border-stone-15 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <h2 class="text-lg font-semibold">Zadnji računi</h2>
                     <Link :href="route('bills')" class="text-sm text-blue hover:text-blue-hover">
                         Vsi računi →
                     </Link>
                 </div>
-                <table class="w-full divide-y divide-stone-15">
+                <div class="overflow-x-auto touch-pan-x">
+                <table class="min-w-[32rem] w-full divide-y divide-stone-15">
                     <thead class="text-white uppercase tracking-wider font-medium text-xs text-left">
                         <tr>
                             <th class="pl-6 py-3 bg-blue">ID</th>
@@ -137,6 +140,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </section>
 
