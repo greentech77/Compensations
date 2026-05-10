@@ -99,7 +99,7 @@ class CompenzationController extends Controller
             'breadcrumb' =>[
                 [
                     'label' => 'Kompenzacije',
-                    'route' => route('entities')
+                    'route' => route('compenzations')
                 ], [
                     'label' => $compenzation->name,
                 ]
