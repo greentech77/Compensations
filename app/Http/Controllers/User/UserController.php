@@ -2,74 +2,73 @@
 
 namespace App\Http\Controllers\User;
 
-use Inertia\Inertia;
-use Illuminate\Support\Arr;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Validation\Validation;
-use App\Services\Compenzations\CompenzationPdfService;
-use App\Services\Entities\EntityService;
+use App\Models\Compenzation;
+use App\Models\CompenzationEntity;
 use App\Models\Entity;
+use App\Services\Compenzations\CompenzationPdfService;
+use App\Services\Dashboard\DashboardService;
+use App\Services\Entities\EntityService;
 use App\Services\Entities\Events\RegistrationEvent;
 use App\Services\Entities\Registration\Registration;
+use App\Validation\Validation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function getDashboard(Request $request, EntityService $entityService) 
+    public function getDashboard(Request $request, DashboardService $dashboard)
     {
-        //$pendingEntities = $entityService->pendingRegistrations();
         return Inertia::render('Dashboard', [
-            //'pendingEntities' => $pendingEntities,
-            'breadcrumb' =>[
+            'summary' => $dashboard->summary(),
+            'breadcrumb' => [
                 [
                     'label' => 'Nadzorna plošča',
-                ]
-            ]
+                ],
+            ],
         ]);
-
-
     }
 
-    public function getEntities(Request $request, EntityService $entityService) 
+    public function getEntities(Request $request, EntityService $entityService)
     {
         $search = $request->input('search');
         $entities = $entityService->entities($search);
-        
+
         return Inertia::render('Entities', [
             'entities' => $entities,
             'filters' => [
-                'search' => $search
+                'search' => $search,
             ],
-            'breadcrumb' =>[
+            'breadcrumb' => [
                 [
                     'label' => 'Podjetja',
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
-    public function getEntity(Request $request, EntityService $entityService, $id) 
+    public function getEntity(Request $request, EntityService $entityService, $id)
     {
-        $entity =  $entityService->entity($id);
+        $entity = $entityService->entity($id);
 
         return Inertia::render('Entity', [
             'entity' => $entity,
-            'breadcrumb' =>[
+            'breadcrumb' => [
                 [
                     'label' => 'Podjetja',
-                    'route' => route('entities')
+                    'route' => route('entities'),
                 ], [
                     'label' => $entity->company_name,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
-    public function patchEntity(Request $request, EntityService $entityService, $id) 
+    public function patchEntity(Request $request, EntityService $entityService, $id)
     {
         $data = $request->except('action');
-        //print_r($data);
+        // print_r($data);
         switch ($request->action) {
             case 'update':
                 $entityService->patchEntity($data['id'], Arr::except($data, 'id'));
@@ -81,20 +80,20 @@ class UserController extends Controller
 
     public function downloadCompenzationPdf(Request $request, CompenzationPdfService $pdfs, $entityId, $compenzationId, $type)
     {
-        if (!in_array($type, ['proposal', 'implementation', 'realization'], true)) {
+        if (! in_array($type, ['proposal', 'implementation', 'realization'], true)) {
             abort(404, 'Invalid PDF type');
         }
 
         // Verify that the entity is part of this compenzation
-        $entityExists = \App\Models\CompenzationEntity::where('id_compenzation', $compenzationId)
+        $entityExists = CompenzationEntity::where('id_compenzation', $compenzationId)
             ->where('id_entity', $entityId)
             ->exists();
 
-        if (!$entityExists) {
+        if (! $entityExists) {
             abort(403, 'Entity is not part of this compenzation');
         }
 
-        $compenzation = \App\Models\Compenzation::with([
+        $compenzation = Compenzation::with([
             'proposal',
             'implementationAgreement',
             'realizationAgreement',
@@ -108,7 +107,7 @@ class UserController extends Controller
             abort(500, 'PDF dokument ni na voljo. Poskusite znova ali stopite v stik s podporo.');
         }
 
-        if (!$filePath || !\Storage::disk('local')->exists($filePath)) {
+        if (! $filePath || ! \Storage::disk('local')->exists($filePath)) {
             abort(404, 'PDF file not found');
         }
 
@@ -127,26 +126,24 @@ class UserController extends Controller
         return \Storage::disk('local')->download($filePath, $fileName);
     }
 
-    public function RegisterEntity() 
+    public function RegisterEntity()
     {
         return Inertia::render('RegisterEntity', [
-            'breadcrumb' =>[
+            'breadcrumb' => [
                 [
                     'label' => 'Dodaj podjetje',
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
     /**
      * Post za entity registracijo / final step.
-     * 
-     * @param Request $request
-     * @param Validation $validation
-     * @param Registration $registration
+     *
      * @return RedirectResponse
      */
-    public function postEntity(Request $request, Validation $validation, Registration $registration) {
+    public function postEntity(Request $request, Validation $validation, Registration $registration)
+    {
 
         // manjka session data iz registration route
         /*if (session()->missing('registration')) {
@@ -163,7 +160,7 @@ class UserController extends Controller
 
         RegistrationEvent::dispatch($entity);
 
-        //dd(session()->all());
+        // dd(session()->all());
 
         session()->forget('registration');
 
@@ -176,21 +173,22 @@ class UserController extends Controller
                     'action' => [
                         // 'type' => 'redirect',
                         'type' => 'close',
-                        //'url' => route('login')
+                        // 'url' => route('login')
                     ],
-                    'text' => __('modals.common.confirm')
-                ]]
-            ]
+                    'text' => __('modals.common.confirm'),
+                ]],
+            ],
         ]);
-        
+
     }
 
     /**
      * Post za enterprise registration / Data step validacija.
      */
-    public function postEntityData(Request $request, Validation $validation) 
+    public function postEntityData(Request $request, Validation $validation)
     {
         $request->validate($validation->entityData());
+
         return redirect()->back();
     }
 }
