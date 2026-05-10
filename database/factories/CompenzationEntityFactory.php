@@ -16,12 +16,12 @@ class CompenzationEntityFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'id_compenzation' => Compenzation::factory(), // Generate or reference a related Compenzation
-            'id_entity' => Entity::factory(),            // Generate or reference a related Entity
-            'num' => $this->faker->numberBetween(1, 100), // Random number or null
+            'id_compenzation' => Compenzation::factory(),
+            'id_entity'       => Entity::factory(),
+            'num'             => $this->faker->randomElement([1, 2]),
         ];
     }
 }

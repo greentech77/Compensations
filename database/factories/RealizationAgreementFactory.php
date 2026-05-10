@@ -12,20 +12,17 @@ class RealizationAgreementFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
+        $commission = $this->faker->randomFloat(2, 1, 10);
+        $amount     = $this->faker->randomFloat(2, 1000, 10000);
+
         return [
-                'id_compenzation'  => function () {
-                    // Fetch the first 20 compenzation IDs from the database
-                    $compenzationIds = \App\Models\Compenzation::limit(20)->pluck('id');
-                    
-                    // Randomly select one of these IDs
-                    return $compenzationIds->random();
-                },
-                'commission'            =>  $this->faker->randomFloat(2, 1, 10),
-                'commission_amount'     =>  $this->faker->randomFloat(2, 10, 1000),
-                'commission_ddv_amount' =>  $this->faker->randomFloat(2, 10, 1000),
-                'transfer_amount'       =>  $this->faker->randomFloat(2, 10, 1000)
-            ];     
+            'id_compenzation'     => \App\Models\Compenzation::factory(),
+            'commission'          => $commission,
+            'commission_amount'   => round($amount * $commission / 100, 2),
+            'commission_ddv_amount' => round($amount * $commission / 100 * 1.22, 2),
+            'transfer_amount'     => round($amount - ($amount * $commission / 100), 2),
+        ];
     }
 }

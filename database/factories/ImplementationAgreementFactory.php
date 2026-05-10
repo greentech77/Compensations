@@ -12,22 +12,19 @@ class ImplementationAgreementFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
+        $discount = $this->faker->randomFloat(2, 1, 10);
+        $amount   = $this->faker->randomFloat(2, 1000, 10000);
+
         return [
-            'id_compenzation' => function () {
-                // Fetch the first 20 compenzation IDs from the database
-                $compenzationIds = \App\Models\Compenzation::limit(20)->pluck('id');
-                
-                // Randomly select one of these IDs
-                return $compenzationIds->random();
-            },
-            'discount'              =>  $this->faker->randomFloat(2, 1, 10),
-            'with_ddv'              =>  $this->faker->boolean(),
-            'discount_amount'       =>  $this->faker->randomFloat(2, 10, 1000),
-            'discount_ddv_amount'   =>  $this->faker->randomFloat(2, 10, 1000),
-            'net_amount'            =>  $this->faker->randomFloat(2, 10, 1000),
-            'transfer_amount'       =>  $this->faker->randomFloat(2, 10, 1000)
+            'id_compenzation'     => \App\Models\Compenzation::factory(),
+            'discount'            => $discount,
+            'with_ddv'            => $this->faker->boolean(),
+            'discount_amount'     => round($amount * $discount / 100, 2),
+            'discount_ddv_amount' => round($amount * $discount / 100 * 1.22, 2),
+            'net_amount'          => round($amount - ($amount * $discount / 100), 2),
+            'transfer_amount'     => round($amount - ($amount * $discount / 100), 2),
         ];
     }
 }
