@@ -76,7 +76,7 @@
                         {{formatPercentage(compenzation.realization_agreement.commission)}}
                     </td>
                     <td class="pl-6 py-4" @click.stop>
-                        <div class="flex flex-wrap gap-1.5">
+                        <div class="flex flex-col xl:flex-row xl:flex-wrap gap-1.5">
                             <a
                                 v-if="compenzation.proposal && compenzation.proposal.file_path"
                                 :href="route('compenzations.compenzation.pdf.download', { id: compenzation.id, type: 'proposal' })"
