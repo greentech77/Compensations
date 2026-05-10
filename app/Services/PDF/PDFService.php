@@ -16,6 +16,7 @@ class PDFService {
     public function generate($html, $overrides = []) {
 
         $mpdf = new Mpdf([
+            'tempDir' => $this->resolveTempDir(),
             'default_font' => 'dejavusans',
             'margin_left' => 22,
             'margin_right' => 22,
@@ -32,6 +33,25 @@ class PDFService {
         $mpdf->WriteHTML($html);
 
         return new PDF($mpdf);
+    }
+
+    /**
+     * Keep mPDF's scratch files inside `storage/` instead of the default
+     * `vendor/mpdf/mpdf/tmp/`. The vendor path is wiped on every
+     * `composer install` and, more importantly, ends up owned by whichever
+     * user first ran a PDF job (often `root` via an artisan backfill),
+     * which then locks the web-server user out and silently breaks all
+     * future PDF generation.
+     */
+    private function resolveTempDir(): string
+    {
+        $tempDir = storage_path('app/mpdf-tmp');
+
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0775, true);
+        }
+
+        return $tempDir;
     }
 
     /**
