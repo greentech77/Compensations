@@ -1,32 +1,59 @@
 <template>
-    <Head title="Kompenzacije - Izvoz in statistika" />
+    <Head title="Izvoz kompenzacij" />
 
     <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
-        <h1 class="text-2xl font-bold mb-6">Kompenzacije</h1>
 
-        <div class="bg-white p-6 rounded-md shadow-sm border border-stone">
-            <h2 class="text-lg font-semibold mb-4">Obdobje</h2>
+        <!-- Breadcrumb + tab navigation -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <Link :href="route('exports.index')" class="hover:text-gray-800 transition-colors">← Vsi izvozi</Link>
+            </div>
+            <nav class="flex items-center bg-white border border-stone rounded-md p-1 gap-1 shadow-sm self-start sm:self-auto">
+                <Link
+                    :href="route('exports.bills')"
+                    class="px-3 py-1.5 rounded text-sm font-medium text-gray-600 hover:bg-stone-15 transition-colors"
+                >Računi</Link>
+                <Link
+                    :href="route('exports.contracts')"
+                    class="px-3 py-1.5 rounded text-sm font-medium text-gray-600 hover:bg-stone-15 transition-colors"
+                >Pogodbe</Link>
+                <Link
+                    :href="route('exports.compenzations')"
+                    class="px-3 py-1.5 rounded text-sm font-medium bg-blue-600 text-white pointer-events-none"
+                >Kompenzacije</Link>
+            </nav>
+        </div>
 
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 mb-1">Datum od</label>
-                    <Input type="date" v-model="form.date_from" class="w-48" />
+        <h1 class="text-2xl font-bold mb-6">Izvoz kompenzacij</h1>
+
+        <div class="space-y-6">
+            <!-- Parameters -->
+            <div class="bg-white p-6 rounded-md border border-stone shadow-sm">
+                <h2 class="text-lg font-semibold mb-4">Parametri izvoza</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Datum od</label>
+                        <Input type="date" v-model="form.date_from" name="date_from" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Datum do</label>
+                        <Input type="date" v-model="form.date_to" name="date_to" />
+                    </div>
                 </div>
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 mb-1">Datum do</label>
-                    <Input type="date" v-model="form.date_to" class="w-48" />
-                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-end gap-3">
                 <Button
                     type="button"
                     class="button button--stone"
                     :disabled="!normalizedDateFrom || !normalizedDateTo"
-                    @click="showCompenzations"
+                    @click="showStats"
                 >
-                    Prikaži
+                    Prikaži statistiko
                 </Button>
                 <Button
                     type="button"
-                    class="button button--stone"
+                    class="button button--blue"
                     :disabled="!normalizedDateFrom || !normalizedDateTo"
                     @click="exportXml"
                 >
@@ -35,17 +62,13 @@
             </div>
         </div>
 
-        <!-- Previously generated exports -->
-        <div class="mt-8 bg-white p-6 rounded-md shadow-sm border border-stone">
+        <!-- Previous exports -->
+        <div class="mt-8 bg-white p-6 rounded-md border border-stone shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold">Pretekli izvozi</h2>
-                <button
-                    type="button"
-                    class="text-sm text-blue hover:underline"
-                    @click="refreshFiles"
-                >
+                <Button type="button" class="button button--green text-sm !py-1.5 !px-4" @click="refreshFiles">
                     Osveži
-                </button>
+                </Button>
             </div>
 
             <p v-if="!files.length" class="text-sm text-gray-500">
@@ -85,11 +108,23 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Info -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <h3 class="text-sm font-semibold text-blue-900 mb-2">Informacije</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• Izvoz je v XML formatu, primernem za uvoz v računovodske sisteme (OpPIS)</li>
+                <li>• Rezultati so omejeni na izbran datumski interval (po datumu plačila)</li>
+                <li>• Gumb „Prikaži statistiko" odpre pregled zneskov in primerjav za izbrano obdobje</li>
+                <li>• Ustvarjene datoteke se shranijo na strežniku in so na voljo v zgornjem seznamu</li>
+            </ul>
+        </div>
+
     </div>
 </template>
 
 <script>
-import { Head, router } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
 import { DownloadIcon } from '@heroicons/vue/outline'
 import AdminLayout from '@/mixins/adminLayout'
 import Button from '@/Components/Button.vue'
@@ -97,18 +132,22 @@ import Input from '@/Components/Input.vue'
 
 export default {
     layout: AdminLayout,
+
     components: {
         Head,
+        Link,
         Button,
         Input,
         DownloadIcon
     },
+
     props: {
         files: {
             type: Array,
             default: () => []
         }
     },
+
     data() {
         return {
             form: {
@@ -117,6 +156,7 @@ export default {
             }
         }
     },
+
     computed: {
         normalizedDateFrom() {
             return this.normalizeDate(this.form.date_from)
@@ -125,6 +165,7 @@ export default {
             return this.normalizeDate(this.form.date_to)
         }
     },
+
     methods: {
         normalizeDate(value) {
             if (!value) return ''
@@ -137,7 +178,7 @@ export default {
             }
             return ''
         },
-        showCompenzations() {
+        showStats() {
             this.$inertia.get(this.route('compenzations.stats'), {
                 date_from: this.normalizedDateFrom,
                 date_to: this.normalizedDateTo
@@ -150,17 +191,10 @@ export default {
                 date_to: this.normalizedDateTo
             })
             window.open(`${this.route('compenzations.export')}?${params.toString()}`, '_blank')
-
-            setTimeout(() => {
-                this.refreshFiles()
-            }, 1500)
+            setTimeout(() => this.refreshFiles(), 1500)
         },
         refreshFiles() {
-            router.reload({
-                only: ['files'],
-                preserveState: true,
-                preserveScroll: true
-            })
+            router.reload({ only: ['files'], preserveState: true, preserveScroll: true })
         },
         formatSize(bytes) {
             if (!bytes && bytes !== 0) return '—'

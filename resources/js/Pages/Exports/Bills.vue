@@ -1,41 +1,45 @@
 <template>
     <Head title="Izvoz računov" />
-    
+
     <div class="w-full max-w-none -mx-4 rounded-md bg-stone-15 p-4 md:-mx-6 md:p-8">
+
+        <!-- Breadcrumb + tab navigation -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <a :href="route('exports.index')" class="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+                ← Vsi izvozi
+            </a>
+            <nav class="flex items-center bg-white border border-stone rounded-md p-1 gap-1 shadow-sm self-start sm:self-auto">
+                <span class="px-3 py-1.5 rounded text-sm font-medium bg-blue-600 text-white">
+                    Računi
+                </span>
+                <a :href="route('exports.contracts')" class="px-3 py-1.5 rounded text-sm font-medium text-gray-600 hover:bg-stone-15 transition-colors">
+                    Pogodbe
+                </a>
+                <a :href="route('exports.compenzations')" class="px-3 py-1.5 rounded text-sm font-medium text-gray-600 hover:bg-stone-15 transition-colors">
+                    Kompenzacije
+                </a>
+            </nav>
+        </div>
+
         <h1 class="text-2xl font-bold mb-6">Izvoz računov</h1>
 
         <div class="space-y-6">
-            <div class="bg-white p-6 rounded-md shadow-sm">
+            <!-- Parameters -->
+            <div class="bg-white p-6 rounded-md border border-stone shadow-sm">
                 <h2 class="text-lg font-semibold mb-4">Parametri izvoza</h2>
-
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Datum od
-                            </label>
-                            <Input
-                                v-model="form.date_from"
-                                type="date"
-                                name="date_from"
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Datum do
-                            </label>
-                            <Input
-                                v-model="form.date_to"
-                                type="date"
-                                name="date_to"
-                            />
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Datum od</label>
+                        <Input v-model="form.date_from" type="date" name="date_from" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Datum do</label>
+                        <Input v-model="form.date_to" type="date" name="date_to" />
                     </div>
                 </div>
             </div>
 
-            <!-- Export button -->
-            <div class="flex justify-end space-x-4">
+            <div class="flex justify-end">
                 <Button
                     type="button"
                     @click="exportBills"
@@ -48,15 +52,11 @@
             </div>
         </div>
 
-        <!-- Previously generated exports -->
-        <div class="mt-8 bg-white p-6 rounded-md shadow-sm">
+        <!-- Previous exports -->
+        <div class="mt-8 bg-white p-6 rounded-md border border-stone shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold">Pretekli izvozi</h2>
-                <Button
-                    type="button"
-                    class="button button--green text-sm !py-1.5 !px-4"
-                    @click="refreshFiles"
-                >
+                <Button type="button" class="button button--green text-sm !py-1.5 !px-4" @click="refreshFiles">
                     Osveži
                 </Button>
             </div>
@@ -99,16 +99,17 @@
             </table>
         </div>
 
-        <!-- Info section -->
+        <!-- Info -->
         <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
             <h3 class="text-sm font-semibold text-blue-900 mb-2">Informacije</h3>
             <ul class="text-sm text-blue-800 space-y-1">
-                <li>• XML format je primeren za programsko obdelavo</li>
-                <li>• Izvoz je omejen na izbran interval od/do</li>
+                <li>• Izvoz je v XML formatu, primernem za uvoz v računovodske sisteme (OpPIS)</li>
+                <li>• Rezultati so omejeni na izbran datumski interval</li>
                 <li>• Izvoženi podatki vključujejo: ID, stranko, znesek, leto, datum in povezane kompenzacije</li>
-                <li>• Ustvarjene datoteke se shranijo na strežniku in so kasneje na voljo v seznamu zgoraj</li>
+                <li>• Ustvarjene datoteke se shranijo na strežniku in so na voljo v zgornjem seznamu</li>
             </ul>
         </div>
+
     </div>
 </template>
 
@@ -174,21 +175,14 @@ export default {
                 date_from: this.normalizedDateFrom,
                 date_to: this.normalizedDateTo
             })
-            const url = `${this.route('exports.bills.export')}?${params.toString()}`
-            window.open(url, '_blank')
-
-            // After the download starts, re-pull the page so the new file appears in the list.
+            window.open(`${this.route('exports.bills.export')}?${params.toString()}`, '_blank')
             setTimeout(() => {
                 this.form.processing = false
                 this.refreshFiles()
             }, 1500)
         },
         refreshFiles() {
-            router.reload({
-                only: ['files'],
-                preserveState: true,
-                preserveScroll: true
-            })
+            router.reload({ only: ['files'], preserveState: true, preserveScroll: true })
         },
         formatSize(bytes) {
             if (!bytes && bytes !== 0) return '—'
