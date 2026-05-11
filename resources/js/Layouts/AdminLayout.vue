@@ -24,9 +24,11 @@
                         <div class="flex min-w-0 flex-1 items-center sm:w-[210px] sm:flex-none">
                             <Link
                                 :href="route('home')"
-                                class="truncate py-2 text-blue hover:text-blue-hover focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                                class="flex items-center gap-2.5 py-1.5 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                                aria-label="Domov"
                             >
-                                Domov
+                                <img src="/favicon.svg" alt="Logo" class="h-8 w-8 shrink-0" />
+                                <span class="hidden sm:block text-sm font-semibold text-blue tracking-wide truncate">Kompenzacije</span>
                             </Link>
                         </div>
                     </div>
