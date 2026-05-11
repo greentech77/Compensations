@@ -6,7 +6,7 @@ class CalculationsService
 {
     public function calculateDiscount($compenzationAmount, $compenzationDiscount, $discountWithVat) {
 
-        $compenzationDiscount   = $discountWithVat ? $compenzationDiscount + ($compenzationDiscount * 0.22) : $compenzationDiscount;
+        $compenzationDiscount   = $discountWithVat ? round($compenzationDiscount / 1.22, 2) : $compenzationDiscount;
 
         $amountWithOutDDV       = round((($compenzationDiscount / 100) / 1.22) * $compenzationAmount, 2);
 
