@@ -1,18 +1,23 @@
 #!/bin/bash
 
-# Fix Laravel storage / bootstrap-cache / mPDF temp permissions for this
-# Apache deployment.
+# Fix Laravel storage / bootstrap-cache / mPDF temp permissions.
 #
 #   Run with: sudo bash fix-permissions.sh
 #
-# Detects the actual Apache runtime user from /etc/apache2/envvars (falling
-# back to www-data, which is the Debian/Ubuntu default) and aligns ownership
-# of every directory PHP/Laravel needs to write into. Without this, you'll
-# typically see one of these errors:
+# Detects the web-server runtime user (Apache via /etc/apache2/envvars, or
+# nginx/php-fpm via /etc/php/*/fpm/pool.d/*.conf), falling back to www-data.
+# Aligns ownership of every directory PHP/Laravel needs to write into.
+#
+# IMPORTANT: Run this after any `php artisan` command that writes to storage/
+# (e.g. compenzations:regenerate-pdfs), because artisan runs as root and
+# creates files owned by root that the web-server user cannot later overwrite.
+#
+# Without this, you may see:
 #   - "Please provide a valid cache path" (Blade compiler can't write)
-#   - "tempnam(): file created in the system's temporary directory" (Filesystem::replace)
+#   - "tempnam(): file created in the system's temporary directory"
 #   - "Temporary files directory ... is not writable" (mPDF)
 #   - silent PDF generation failures inside the AddCompenzationEvent listener
+#     (Storage::put() returns false when writing to root-owned PDF files)
 
 set -euo pipefail
 
@@ -28,13 +33,13 @@ if [[ ! -d "$APP_ROOT" ]]; then
     exit 1
 fi
 
-# Resolve the Apache runtime user. Default to www-data if not detectable.
-# /etc/apache2/envvars references variables like $APACHE_CONFDIR that are
-# only set by the systemd unit, so we need to disable `set -u` while sourcing
-# it (and provide a benign default for $APACHE_CONFDIR so the script doesn't
-# blow up before it ever gets to the chown).
-APACHE_USER="www-data"
-APACHE_GROUP="www-data"
+# Resolve the web-server runtime user.
+# 1. Try Apache (/etc/apache2/envvars).
+# 2. Try PHP-FPM pool config for nginx (look for user= lines).
+# 3. Fall back to www-data.
+WEB_USER="www-data"
+WEB_GROUP="www-data"
+
 if [[ -r /etc/apache2/envvars ]]; then
     set +u
     APACHE_CONFDIR="${APACHE_CONFDIR:-/etc/apache2}"
@@ -43,12 +48,25 @@ if [[ -r /etc/apache2/envvars ]]; then
     # shellcheck disable=SC1091
     source /etc/apache2/envvars || true
     set -u
-    APACHE_USER="${APACHE_RUN_USER:-$APACHE_USER}"
-    APACHE_GROUP="${APACHE_RUN_GROUP:-$APACHE_GROUP}"
+    WEB_USER="${APACHE_RUN_USER:-$WEB_USER}"
+    WEB_GROUP="${APACHE_RUN_GROUP:-$WEB_GROUP}"
+elif [[ -d /etc/php ]]; then
+    # nginx + php-fpm: read user from the first pool config found
+    FPM_CONF=$(find /etc/php -name "*.conf" -path "*/pool.d/*" 2>/dev/null | head -1)
+    if [[ -n "$FPM_CONF" ]]; then
+        _U=$(grep -E '^user\s*=' "$FPM_CONF" 2>/dev/null | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')
+        _G=$(grep -E '^group\s*=' "$FPM_CONF" 2>/dev/null | head -1 | sed 's/.*=\s*//' | tr -d '[:space:]')
+        WEB_USER="${_U:-$WEB_USER}"
+        WEB_GROUP="${_G:-$WEB_GROUP}"
+    fi
 fi
 
-echo "[fix-permissions] target user:  $APACHE_USER"
-echo "[fix-permissions] target group: $APACHE_GROUP"
+# Backward-compat aliases (old variable names referenced in the chown loop below)
+APACHE_USER="$WEB_USER"
+APACHE_GROUP="$WEB_GROUP"
+
+echo "[fix-permissions] target user:  $WEB_USER"
+echo "[fix-permissions] target group: $WEB_GROUP"
 echo "[fix-permissions] app root:     $APP_ROOT"
 echo
 

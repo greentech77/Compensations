@@ -128,6 +128,9 @@ class CompenzationPdfService
         $filename = "kompenzacija{$compenzation->id}_{$compenzation->year}.pdf";
         $filePath = "proposals/{$filename}";
 
+        // Delete before write so that files created by root (via artisan) can be replaced
+        // by the web-server user. Deletion only requires directory write permission.
+        Storage::disk('local')->delete($filePath);
         Storage::disk('local')->put($filePath, $pdf->output());
 
         $proposal = CompenzationProposal::firstOrNew(['id_compenzation' => $compenzation->id]);
@@ -159,6 +162,7 @@ class CompenzationPdfService
         $filename = "pogodba_o_izvedbi{$compenzation->id}_{$compenzation->year}.pdf";
         $filePath = "agreements/implementation/{$filename}";
 
+        Storage::disk('local')->delete($filePath);
         Storage::disk('local')->put($filePath, $pdf->output());
 
         $compenzation->implementationAgreement->update([
@@ -184,6 +188,7 @@ class CompenzationPdfService
         $filename = "pogodba_o_unovcenju{$compenzation->id}_{$compenzation->year}.pdf";
         $filePath = "agreements/realization/{$filename}";
 
+        Storage::disk('local')->delete($filePath);
         Storage::disk('local')->put($filePath, $pdf->output());
 
         $compenzation->realizationAgreement->update([
