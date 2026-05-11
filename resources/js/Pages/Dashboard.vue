@@ -12,7 +12,7 @@
             <div class="bg-white rounded-md border border-stone p-4 shadow-card">
                 <div class="text-xs uppercase text-gray-500 tracking-wider">Zaključene {{ kpis.year }}</div>
                 <div class="text-2xl font-semibold mt-1">{{ kpis.compenzations_finished_year ?? 0 }}</div>
-                <div class="text-xs text-gray-500 mt-1">finished = true</div>
+                <div class="text-xs text-gray-500 mt-1">Zaključene kompenzacije</div>
             </div>
             <div class="bg-white rounded-md border border-stone p-4 shadow-card">
                 <div class="text-xs uppercase text-gray-500 tracking-wider">Skupni znesek {{ kpis.year }}</div>

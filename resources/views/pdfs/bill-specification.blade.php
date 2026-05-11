@@ -119,7 +119,9 @@
     </style>
 </head>
 <body>
-    @php($pdfLogoPath = public_path('images/pdf/logo.jpg'))
+    @php
+        $pdfLogoPath = public_path('images/pdf/logo.jpg');
+    @endphp
     <!-- Page 1: Bill -->
     <table class="company-header">
         <tr>

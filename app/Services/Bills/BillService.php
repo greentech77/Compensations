@@ -139,7 +139,7 @@ class BillService
                     'in_date_range_count' => $inDateRange->count(),
                 ]);
 
-                throw new \Exception('Ni kompenzacij za izbrano obdobje in stranko. Preverite, da so kompenzacije končane (finished) in da je datum plačila (date_payed) v izbranem obdobju.');
+                throw new \Exception('Ni kompenzacij za izbrano obdobje in stranko. Preverite, da so kompenzacije zaključene in da je datum plačila v izbranem obdobju.');
             }
 
             // Calculate totals from realization agreements
