@@ -11,19 +11,19 @@
             line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 6px 40px 16px 40px;
+            padding: 8px 40px 20px 40px;
         }
         .company-header {
             width: 100%;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             border-collapse: collapse;
         }
         .header-logo {
-            vertical-align: top;
             width: 120px;
-            padding-top: 0;
+            vertical-align: top;
             text-align: left;
             padding-right: 10px;
+            padding-top: 0;
         }
         .header-logo img {
             max-width: 100px;
@@ -44,69 +44,92 @@
         }
         .header-line {
             border-bottom: 1px solid #000;
-            margin-bottom: 8px;
-            padding-bottom: 3px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
         }
-        .parties-section {
-            margin: 14px 0;
-            line-height: 1.6;
+        .document-number {
             text-align: left;
-        }
-        .party-info {
-            margin-bottom: 6px;
-        }
-        .party-separator {
-            text-align: left;
-            margin: 4px 0;
-        }
-        .contract-title {
-            text-align: left;
+            margin: 20px 0 15px 0;
+            font-size: 14px;
             font-weight: bold;
-            font-size: 11px;
-            margin: 12px 0;
         }
-        .article {
-            margin: 8px 0;
-            line-height: 1.5;
-            text-align: left;
-        }
-        .article p {
-            margin: 3px 0;
-        }
-        .article-title {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 3px;
-        }
-        .signature-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-        }
-        .signature-table td {
-            width: 50%;
-            vertical-align: top;
-            padding: 0;
-        }
-        .sig-left {
-            text-align: left;
-        }
-        .sig-right {
+        .document-date {
             text-align: right;
+            margin-bottom: 25px;
+            font-size: 11px;
         }
-        .sig-label {
+        .main-title {
+            text-align: left;
+            margin: 25px 0;
+            font-size: 14px;
             font-weight: bold;
+            text-transform: uppercase;
         }
-        .sig-space {
-            height: 50px;
+        .intro-text {
+            margin: 20px 0;
+            text-align: justify;
+            line-height: 1.8;
+        }
+        .entities-list {
+            margin: 30px 0;
+        }
+        .entity-item {
+            margin: 5px 0;
+            line-height: 1.8;
+        }
+        .entity-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 0;
+            table-layout: fixed;
+        }
+        .entity-address {
+            display: table-cell;
+            text-align: left;
+            vertical-align: baseline;
+            width: auto;
+            word-wrap: break-word;
+        }
+        .entity-email {
+            display: table-cell;
+            text-align: right;
+            vertical-align: baseline;
+            padding-left: 0px;
+            white-space: nowrap;
+            width: 1%;
+        }
+        .entity-number {
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .entity-debt {
+            margin: 0;
+            margin-top: 2px;
+            font-style: italic;
+            text-align: left;
+        }
+        .stamp {
+            text-align: right;
+            margin-top: 5px;
         }
         .stamp img {
             max-width: 150px;
             height: auto;
         }
-        .date-location {
-            margin: 12px 0;
-            text-align: left;
+        .footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 8px;
+            color: #666;
+            text-align: center;
+        }
+        .declaration-text {
+            margin: 30px 0;
+            text-align: justify;
+            line-height: 1.8;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -158,7 +181,7 @@
 
     <div class="article">
         <div class="article-title">1. člen</div>
-        <p>Predmet te pogodbe so nesporne, neizpodbitne in zapadle terjatve v vrednosti {{ number_format((float)$compenzation->amount, 2, ',', '.') }} €, katere ima odstopnik do svojih dolžnikov.</p>
+        <p>Predmet te pogodbe so nesporne, neizpodbitne in zapadle terjatve v vrednosti <strong>{{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</strong>, katere ima odstopnik do svojih dolžnikov.</p>
     </div>
 
     <div class="article">
@@ -173,12 +196,12 @@
 
     <div class="article">
         <div class="article-title">4. člen</div>
-        <p>Kot plačilo za opravljeno storitev unovčenja terjatve, zaračuna prevzemnik odstopniku {{ (float)($agreement->commission ?? 8) }} % provizijo obračunano od vrednosti obračunano od vrednosti iz 1. člena te pogodbe. To znaša {{ number_format($commission, 2, ',', '.') }} €. Na to vrednost se obračuna 22% DDV v znesku {{ number_format($vatAmount, 2, ',', '.') }} €. Unovčenje terjatve se praviloma izvaja postopno. Storitev in DDV se zato obračunavata v skladu s 33.členom pravilnika o izvajanju ZDDV. Kot obračunsko obdobje šteje koledarski mesec, prevzemnik pa izstavlja račune in obračunava DDV najkasneje zadnji dan v mesecu.</p>
+        <p>Kot plačilo za opravljeno storitev unovčenja terjatve, zaračuna prevzemnik odstopniku <strong>{{ (float)($agreement->commission ?? 8) }} %</strong> provizijo obračunano od vrednosti obračunano od vrednosti iz 1. člena te pogodbe. To znaša <strong>{{ number_format($commission, 2, ',', '.') }} €</strong>. Na to vrednost se obračuna 22% DDV v znesku <strong>{{ number_format($vatAmount, 2, ',', '.') }} €</strong>. Unovčenje terjatve se praviloma izvaja postopno. Storitev in DDV se zato obračunavata v skladu s 33.členom pravilnika o izvajanju ZDDV. Kot obračunsko obdobje šteje koledarski mesec, prevzemnik pa izstavlja račune in obračunava DDV najkasneje zadnji dan v mesecu.</p>
     </div>
 
     <div class="article">
         <div class="article-title">5. člen</div>
-        <p>Prevzemnik bo obveznost plačila terjatev, ki nastane s potrditvijo vseh udeležencev predlaganega pobota poravnal z nakazilom sredstev na račun odstopnika. Znesek kupnine v višini {{ number_format($transferAmount, 2, ',', '.') }} €, ki je zmanjšan za v 4.členu dogovorjeno provizijo in za DDV, bo prevzemnik nakazoval po izvršenih pobotih na TRR: {{ $accountNumber }}</p>
+        <p>Prevzemnik bo obveznost plačila terjatev, ki nastane s potrditvijo vseh udeležencev predlaganega pobota poravnal z nakazilom sredstev na račun odstopnika. Znesek kupnine v višini <strong>{{ number_format($transferAmount, 2, ',', '.') }} €</strong>, ki je zmanjšan za v 4.členu dogovorjeno provizijo in za DDV, bo prevzemnik nakazoval po izvršenih pobotih na TRR: <strong>{{ $accountNumber }}</strong></p>
     </div>
 
     <div class="article">

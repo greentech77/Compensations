@@ -151,11 +151,6 @@ class CompenzationPdfService
             [
                 'compenzation' => $compenzation,
                 'agreement' => $compenzation->implementationAgreement,
-            ],
-            [
-                // Keep top whitespace tight for legacy-style implementation PDFs.
-                'margin_top' => 6,
-                'margin_bottom' => 8,
             ]
         );
 

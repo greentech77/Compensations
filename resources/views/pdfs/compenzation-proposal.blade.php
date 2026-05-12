@@ -8,7 +8,7 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 11px;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #000;
             margin: 0;
             padding: 8px 40px 20px 40px;
@@ -23,6 +23,7 @@
             vertical-align: top;
             text-align: left;
             padding-right: 10px;
+            padding-top: 0;
         }
         .header-logo img {
             max-width: 100px;
@@ -35,11 +36,7 @@
             text-align: right;
             font-size: 11px;
             line-height: 1.4;
-        }
-        .header-text h2 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            font-weight: bold;
+            padding-top: 0;
         }
         .header-text p {
             margin: 0 0 2px 0;

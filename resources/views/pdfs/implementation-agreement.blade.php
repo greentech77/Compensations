@@ -7,46 +7,36 @@
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 10.5px;
-            line-height: 1.28;
+            font-size: 11px;
+            line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 2px 26px 6px 26px;
+            padding: 8px 40px 20px 40px;
         }
         .company-header {
             width: 100%;
-            margin-bottom: 3px;
+            margin-bottom: 8px;
             border-collapse: collapse;
         }
         .header-logo {
             vertical-align: top;
-            width: 62px;
+            width: 120px;
             padding-top: 0;
             text-align: left;
-            padding-right: 6px;
-        }
-        .header-logo-wrap {
-            height: 28px;
-            overflow: hidden;
+            padding-right: 10px;
         }
         .header-logo img {
-            max-width: 46px;
+            max-width: 100px;
             height: auto;
             display: block;
             vertical-align: top;
-            margin-top: -3px;
         }
         .header-text {
             vertical-align: top;
             text-align: right;
-            font-size: 10px;
-            line-height: 1.2;
+            font-size: 11px;
+            line-height: 1.4;
             padding-top: 0;
-        }
-        .header-text h2 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            font-weight: bold;
         }
         .header-text p {
             margin: 0 0 2px 0;
@@ -54,8 +44,8 @@
         }
         .header-line {
             border-bottom: 1px solid #000;
-            margin-bottom: 6px;
-            padding-bottom: 2px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
         }
         .parties-section {
             margin: 6px 0;
@@ -67,15 +57,15 @@
         }
         .party-separator {
             text-align: left;
-            margin: 3px 0;
+            margin: 2px 0;
         }
         .contract-title {
             text-align: left;
-            font-size: 10px;
-            margin: 6px 0;
+            font-size: 11px;
+            margin: 8px 0;
         }
         .findings-section {
-            margin: 5px 0 6px 0;
+            margin: 6px 0;
             line-height: 1.3;
             text-align: left;
         }
@@ -83,14 +73,14 @@
             margin: 1px 0;
         }
         .article {
-            margin: 4px 0;
-            line-height: 1.3;
+            margin: 8px 0;
+            line-height: 1.5;
             text-align: left;
         }
         .article-title {
             font-weight: bold;
             text-align: center;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         .calculation-item {
             display: table;
@@ -190,9 +180,7 @@
     <table class="company-header">
         <tr>
         <td class="header-logo">
-            <div class="header-logo-wrap">
-                <img src="{{ $pdfLogoPath }}" alt="Logo">
-            </div>
+            <img src="{{ $pdfLogoPath }}" alt="Logo">
         </td>
         <td class="header-text">
             <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
@@ -206,12 +194,12 @@
 
     <div class="parties-section">
         <div class="party-info">
-            <strong>{{ $firstEntityName }}</strong>@if($firstEntityAddress) {{ $firstEntityAddress }}@endif<br>
+            {{ $firstEntityName }}@if($firstEntityAddress) {{ $firstEntityAddress }}@endif<br>
             ID DDV:{{ $firstEntityVat }} (v nadaljevanju <strong>prva stranka</strong>)
         </div>
         <div class="party-separator">in</div>
         <div class="party-info">
-            <strong>MATEVŽ KORENJAK S.P.</strong>, Litostrojska cesta 12, 1000 Ljubljana<br>
+            MATEVŽ KORENJAK S.P., Litostrojska cesta 12, 1000 Ljubljana<br>
             ID DDV:SI98789309 ( v nadaljevanju <strong>druga stranka</strong>)
         </div>
     </div>
@@ -221,41 +209,43 @@
     </div>
 
     <div class="findings-section">
-        <p><strong>Ugotovi se:</strong></p>
-        @if($compenzation->compenzationEntity && $compenzation->compenzationEntity->count() > 1)
-            @php
-                $secondEntity = $compenzation->compenzationEntity->skip(1)->first();
-            @endphp
-            @if($secondEntity && $secondEntity->entity)
-            <p>da ima prva stranka obveznost do upnika <strong>{{ strtoupper($secondEntity->entity->company_name) }}</strong> {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini {{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</p>
+    <strong>Ugotovi se:</strong>
+        <ul>
+            @if($compenzation->compenzationEntity && $compenzation->compenzationEntity->count() > 1)
+                @php
+                    $secondEntity = $compenzation->compenzationEntity->skip(1)->first();
+                @endphp
+                @if($secondEntity && $secondEntity->entity)
+                <li>da ima prva stranka obveznost do upnika {{ strtoupper($secondEntity->entity->company_name) }} {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini <strong>{{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</strong></li>
+                @endif
             @endif
-        @endif
-        <p>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom {{ $agreement->discount ?? '5' }} %</p>
-        <p>druga stranka je nosilec pravic in obveznosti po predlogu verižne kompenzacije, katere izvedba je predmet te pogodbe</p>
+            <li>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom <strong>{{ $agreement->discount ?? '5' }} %</strong></li>
+            <li>druga stranka je nosilec pravic in obveznosti po predlogu verižne kompenzacije, katere izvedba je predmet te pogodbe</li>
+        </ul>
     </div>
 
     <div class="article">
-        <div class="article-title">1.člen</div>
+        <div class="article-title">1. člen</div>
         <p>Druga stranka se obvezuje, da bo predlog verižne kompenzacije, ki je predmet te pogodbe sprejela v celoti in ga podpisala, ter predložila v podpis in potrditev drugim pravnim subjektom iz predmetne verižne kompenzacije. Potrjeni predlog verižne kompenzacije je sestavni del te pogodbe.</p>
     </div>
 
     <div class="article">
-        <div class="article-title">2.člen</div>
+        <div class="article-title">2. člen</div>
         <p>Prva stranka se vsled izvedbe verižne kompenzacije obvezuje drugi stranki nakazati znesek verižne kompenzacije, zmanjšan za provizijo s pripadajočim DDV, na njen transakcijski račun : SI56 6100 0002 5604 758 najkasneje do ______________. Vendar le pod pogojem, da je predlog verižne kompenzacije v celoti potrjen iz strani vseh udeležencev.</p>
     </div>
 
     <div class="article">
-        <div class="article-title">3.člen</div>
+        <div class="article-title">3. člen</div>
         <p>Druga stranka se obvezuje prvi stranki, da prevzema vsled nakazila iz 2.člena te pogodbe, obveznost do prve stranke v višini potrjene kompenzacije, ki pa bo predmet medsebojne kompenzacije iz te pogodbe.</p>
     </div>
 
     <div class="article">
-        <div class="article-title">4.člen</div>
+        <div class="article-title">4. člen</div>
         <p>Stranki sta soglasni, da je ta pogodba v skladu z 2. in 3. odstavkom 136. člena Pravilnika o izvajanju ZDDV, v povezavi z 81. členom Pravilnika o izvajanju ZDDV-1 in se šteje kot račun.</p>
     </div>
 
     <div class="article">
-        <div class="article-title">5.člen</div>
+        <div class="article-title">5. člen</div>
         @php
             $amount = (float)$compenzation->amount;
             $discount = (float)($agreement->discount ?? 5);
@@ -265,30 +255,30 @@
             $vatAmount = $provisionWithVAT - $netProvision;
             $transferAmount = $amount - $provisionWithVAT;
         @endphp
-        <p>Po pogodbi o izvedbi verižne kompenzacije prva stranka zaračuna drugi stranki provizijo v višini:</p>
+        <p style="margin-bottom: 0;">Po pogodbi o izvedbi verižne kompenzacije prva stranka zaračuna drugi stranki provizijo v višini:</p>
         <table class="amount-table">
             <tr>
-                <td class="amount-label">{{ $discount }}% z vključenim DDV od zneska realizirane verižne kompenzacije, v višini:</td>
-                <td class="amount-value">{{ number_format($provisionWithVAT, 2, ',', '.') }} €</td>
+                <td class="amount-label"><strong>{{ $discount }}%</strong> z vključenim DDV od zneska realizirane verižne kompenzacije, v višini:</td>
+                <td class="amount-value"><strong>{{ number_format($provisionWithVAT, 2, ',', '.') }} €</strong></td>
             </tr>
             <tr>
                 <td class="amount-label">Od katerega je 22% DDV:</td>
-                <td class="amount-value">{{ number_format($vatAmount, 2, ',', '.') }}€</td>
+                <td class="amount-value"><strong>{{ number_format($vatAmount, 2, ',', '.') }} €</strong></td>
             </tr>
             <tr>
                 <td class="amount-label">Neto znesek brez DDV (davčna osnova):</td>
-                <td class="amount-value">{{ number_format($netProvision, 2, ',', '.') }}€</td>
+                <td class="amount-value"><strong>{{ number_format($netProvision, 2, ',', '.') }} €</strong></td>
             </tr>
             <tr>
                 <td class="amount-label"><strong>Znesek nakazila je:</strong></td>
-                <td class="amount-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }}€</strong></td>
+                <td class="amount-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }} €</strong></td>
             </tr>
         </table>
         <p>Dogovorjena provizija z DDV se pri nakazilu enostransko pobota.</p>
     </div>
 
     <div class="article">
-        <div class="article-title">6.člen</div>
+        <div class="article-title">6. člen</div>
         <p>Pogodbeni stranki soglašata, da bosta morebitne spore reševala mirno, v nasprotnem primeru je za to pristojno sodišče v Ljubljani.</p>
     </div>
 
