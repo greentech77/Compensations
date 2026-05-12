@@ -11,7 +11,7 @@
             line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 8px 40px 20px 40px;
+            padding: 4px 20px 20px 20px;
         }
         .company-header {
             width: 100%;
@@ -20,13 +20,13 @@
         }
         .header-logo {
             vertical-align: top;
-            width: 120px;
+            width: 100px;
             padding-top: 0;
             text-align: left;
             padding-right: 10px;
         }
         .header-logo img {
-            max-width: 100px;
+            max-width: 80px;
             height: auto;
             display: block;
             vertical-align: top;
@@ -131,12 +131,18 @@
             vertical-align: top;
             text-align: right;
         }
+        .sig-label {
+            font-weight: bold;
+        }
+        .sig-space {
+            height: 50px;
+        }
         .stamp {
             margin-top: 2px;
             text-align: right;
         }
         .stamp img {
-            max-width: 70px;
+            max-width: 75px;
             height: auto;
         }
         .signature-line {
@@ -216,10 +222,10 @@
                     $secondEntity = $compenzation->compenzationEntity->skip(1)->first();
                 @endphp
                 @if($secondEntity && $secondEntity->entity)
-                <li>da ima prva stranka obveznost do upnika {{ strtoupper($secondEntity->entity->company_name) }} {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini <strong>{{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</strong></li>
+                <li>da ima prva stranka obveznost do upnika {{ strtoupper($secondEntity->entity->company_name) }} {{ $secondEntity->entity->address }}, {{ $secondEntity->entity->post_num }} {{ $secondEntity->entity->post_town }} v višini {{ number_format((float)$compenzation->amount, 2, ',', '.') }} €</></li>
                 @endif
             @endif
-            <li>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom <strong>{{ $agreement->discount ?? '5' }} %</strong></li>
+            <li>prva stranka ima interes, da poplača svoje obveznosti do upnika s popustom {{ $agreement->discount ?? '5' }} %</li>
             <li>druga stranka je nosilec pravic in obveznosti po predlogu verižne kompenzacije, katere izvedba je predmet te pogodbe</li>
         </ul>
     </div>
@@ -287,25 +293,20 @@
     </div>
 
     <div class="signature-section">
-        @if($firstEntity)
         <table class="signature-table">
             <tr>
                 <td class="signature-left">
-                    <div class="signature-line">
-                        Prva stranka:<strong>{{ strtoupper($firstEntity->company_name) }}</strong>
-                    </div>
+                    <span class="sig-label">PRVA STRANKA:@if($firstEntity) {{ strtoupper($firstEntity->company_name) }}@endif</span>
+                    <div class="sig-space"></div>
                 </td>
                 <td class="signature-right">
-                    <div class="signature-line">
-                        Druga stranka: <strong>MATEVŽ KORENJAK S.P.</strong>
-                    </div>
+                    <span class="sig-label">DRUGA STRANKA: MATEVŽ KORENJAK S.P.</span>
                     <div class="stamp">
-                        <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig">
+                        <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig" style="max-width:75px; height:auto; margin-top:6px;">
                     </div>
                 </td>
             </tr>
         </table>
-        @endif
     </div>
 </body>
 </html>

@@ -11,7 +11,7 @@
             line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 8px 40px 20px 40px;
+            padding: 4px 20px 20px 20px;
         }
         .company-header {
             width: 100%;
@@ -19,14 +19,14 @@
             border-collapse: collapse;
         }
         .header-logo {
-            width: 120px;
             vertical-align: top;
+            width: 100px;
+            padding-top: 0;
             text-align: left;
             padding-right: 10px;
-            padding-top: 0;
         }
         .header-logo img {
-            max-width: 100px;
+            max-width: 80px;
             height: auto;
             display: block;
             vertical-align: top;
@@ -47,89 +47,66 @@
             margin-bottom: 10px;
             padding-bottom: 4px;
         }
-        .document-number {
+        .parties-section {
+            margin: 6px 0;
+            line-height: 1.3;
             text-align: left;
-            margin: 20px 0 15px 0;
-            font-size: 14px;
-            font-weight: bold;
         }
-        .document-date {
-            text-align: right;
-            margin-bottom: 25px;
+        .party-info {
+            margin-bottom: 3px;
+        }
+        .party-separator {
+            text-align: left;
+            margin: 2px 0;
+        }
+        .contract-title {
+            text-align: left;
+            font-weight: bold;
             font-size: 11px;
+            margin: 12px 0;
         }
-        .main-title {
+        .article {
+            margin: 8px 0;
+            line-height: 1.5;
             text-align: left;
-            margin: 25px 0;
-            font-size: 14px;
+        }
+        .article p {
+            margin: 3px 0;
+        }
+        .article-title {
             font-weight: bold;
-            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 3px;
         }
-        .intro-text {
-            margin: 20px 0;
-            text-align: justify;
-            line-height: 1.8;
-        }
-        .entities-list {
-            margin: 30px 0;
-        }
-        .entity-item {
-            margin: 5px 0;
-            line-height: 1.8;
-        }
-        .entity-row {
-            display: table;
+        .signature-table {
             width: 100%;
-            margin-bottom: 0;
-            table-layout: fixed;
+            border-collapse: collapse;
+            margin-top: 30px;
         }
-        .entity-address {
-            display: table-cell;
+        .signature-table td {
+            width: 50%;
+            vertical-align: top;
+            padding: 0;
+        }
+        .sig-left {
             text-align: left;
-            vertical-align: baseline;
-            width: auto;
-            word-wrap: break-word;
         }
-        .entity-email {
-            display: table-cell;
+        .sig-right {
             text-align: right;
-            vertical-align: baseline;
-            padding-left: 0px;
-            white-space: nowrap;
-            width: 1%;
         }
-        .entity-number {
+        .sig-label {
             font-weight: bold;
-            display: inline-block;
-            margin-right: 5px;
         }
-        .entity-debt {
-            margin: 0;
-            margin-top: 2px;
-            font-style: italic;
-            text-align: left;
-        }
-        .stamp {
-            text-align: right;
-            margin-top: 5px;
+        .sig-space {
+            height: 50px;
         }
         .stamp img {
-            max-width: 150px;
+            max-width: 75px;
             height: auto;
         }
-        .footer {
-            margin-top: 40px;
-            padding-top: 10px;
-            border-top: 1px solid #ccc;
-            font-size: 8px;
-            color: #666;
-            text-align: center;
-        }
-        .declaration-text {
-            margin: 30px 0;
-            text-align: justify;
-            line-height: 1.8;
-            font-size: 11px;
+        .date-location {
+            margin: 12px 0;
+            text-align: left;
         }
     </style>
 </head>
@@ -163,13 +140,13 @@
 
     <div class="parties-section">
         <div class="party-info">
-            <strong>MATEVŽ KORENJAK S.P.</strong>, Litostrojska cesta 12, 1000 Ljubljana<br>
+            MATEVŽ KORENJAK S.P., Litostrojska cesta 12, 1000 Ljubljana<br>
             ID DDV:SI98789309 (v nadaljevanju <strong>prevzemnik</strong>)
         </div>
         <div class="party-separator">in</div>
         @if($lastEntity)
         <div class="party-info">
-            <strong>{{ strtoupper($lastEntity->company_name) }}</strong> {{ $lastEntity->address }}, {{ $lastEntity->post_num }} {{ $lastEntity->post_town }}<br>
+            {{ strtoupper($lastEntity->company_name) }} {{ $lastEntity->address }}, {{ $lastEntity->post_num }} {{ $lastEntity->post_town }}<br>
             ID DDV:{{ $lastEntity->vat_num }} (v nadaljevanju <strong>odstopnik</strong>)
         </div>
         @endif
@@ -226,7 +203,7 @@
             </td>
             <td class="sig-right">
                 <span class="sig-label">PREVZEMNIK:</span><br>
-                <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig" style="max-width:150px; height:auto; margin-top:6px;">
+                <img src="{{ public_path('images/pdf/zig.jpg') }}" alt="Žig" style="max-width:75px; height:auto; margin-top:6px;">
             </td>
         </tr>
     </table>

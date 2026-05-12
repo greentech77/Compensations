@@ -11,7 +11,7 @@
             line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 8px 40px 20px 40px;
+            padding: 4px 20px 20px 20px;
         }
         .company-header {
             width: 100%;
@@ -19,14 +19,14 @@
             border-collapse: collapse;
         }
         .header-logo {
-            width: 120px;
+            width: 100px;
             vertical-align: top;
             text-align: left;
             padding-right: 10px;
             padding-top: 0;
         }
         .header-logo img {
-            max-width: 100px;
+            max-width: 80px;
             height: auto;
             display: block;
             vertical-align: top;
@@ -49,33 +49,33 @@
         }
         .document-number {
             text-align: left;
-            margin: 20px 0 15px 0;
+            margin: 8px 0 4px 0;
             font-size: 14px;
             font-weight: bold;
         }
         .document-date {
             text-align: right;
-            margin-bottom: 25px;
+            margin-bottom: 6px;
             font-size: 11px;
         }
         .main-title {
             text-align: left;
-            margin: 25px 0;
+            margin: 8px 0;
             font-size: 14px;
             font-weight: bold;
             text-transform: uppercase;
         }
         .intro-text {
-            margin: 20px 0;
+            margin: 6px 0;
             text-align: justify;
-            line-height: 1.8;
+            line-height: 1.5;
         }
         .entities-list {
-            margin: 30px 0;
+            margin: 8px 0;
         }
         .entity-item {
-            margin: 5px 0;
-            line-height: 1.8;
+            margin: 2px 0;
+            line-height: 1.5;
         }
         .entity-row {
             display: table;
@@ -114,7 +114,7 @@
             margin-top: 5px;
         }
         .stamp img {
-            max-width: 150px;
+            max-width: 75px;
             height: auto;
         }
         .footer {
@@ -126,9 +126,9 @@
             text-align: center;
         }
         .declaration-text {
-            margin: 30px 0;
+            margin: 10px 0;
             text-align: justify;
-            line-height: 1.8;
+            line-height: 1.5;
             font-size: 11px;
         }
     </style>

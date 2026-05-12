@@ -18,9 +18,9 @@ class PDFService {
         $mpdf = new Mpdf([
             'tempDir' => $this->resolveTempDir(),
             'default_font' => 'dejavusans',
-            'margin_left' => 22,
-            'margin_right' => 22,
-            'margin_top' => 12,
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 6,
             'margin_bottom' => 20,
             'margin_header' => 0,
             'setAutoBottomMargin' => 'pad',
