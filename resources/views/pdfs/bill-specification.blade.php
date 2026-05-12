@@ -7,81 +7,105 @@
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 9px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.5;
             color: #000;
             margin: 0;
-            padding: 8px 20px 12px 20px;
+            padding: 4px 20px 12px 20px;
         }
         .company-header {
             width: 100%;
             margin-bottom: 8px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 4px;
             border-collapse: collapse;
         }
         .header-logo {
             vertical-align: top;
-            width: 120px;
+            width: 100px;
+            padding-top: 0;
             text-align: left;
             padding-right: 10px;
+        }
+        .header-logo img {
+            max-width: 80px;
+            height: auto;
+            display: block;
+            vertical-align: top;
         }
         .header-text {
             vertical-align: top;
             text-align: right;
-            font-size: 9px;
+            font-size: 11px;
             line-height: 1.4;
+            padding-top: 0;
         }
         .header-text p {
             margin: 0 0 2px 0;
-        }
-        .client-info {
-            margin: 15px 0;
-            font-size: 9px;
-        }
-        .bill-title {
-            font-size: 12px;
-            font-weight: bold;
-            margin: 15px 0 10px 0;
-        }
-        .bill-info {
-            margin: 8px 0;
-            font-size: 9px;
-        }
-        .contracts {
-            margin: 15px 0;
-            padding: 10px;
-            border-bottom: 1px solid #000;
-            font-size: 9px;
-        }
-        .amount-section {
-            margin: 15px 0;
-        }
-        .amount-row {
-            display: table;
-            width: 100%;
-            margin: 5px 0;
-        }
-        .amount-label {
-            display: table-cell;
-            width: 70%;
-            text-align: left;
-            padding: 5px 10px;
-        }
-        .amount-value {
-            display: table-cell;
-            width: 30%;
-            text-align: right;
-            padding: 5px 10px;
-        }
-        .amount-total {
-            border-top: 1px solid #000;
-            font-weight: bold;
             font-size: 10px;
         }
+        .header-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+        }
+        .client-info {
+            margin: 10px 0;
+        }
+        .bill-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 10px 0 8px 0;
+        }
+        .bill-info {
+            margin: 6px 0;
+        }
+        .contracts {
+            margin: 8px 0;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 6px;
+        }
+        .amount-section {
+            margin: 10px 0;
+        }
+        .amount-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .amount-table td {
+            padding: 2px 0;
+            vertical-align: top;
+        }
+        .amount-label {
+            text-align: left;
+            width: 70%;
+        }
+        .amount-value {
+            text-align: right;
+            width: 30%;
+            white-space: nowrap;
+        }
+        .amount-total td {
+            border-top: 1px solid #000;
+            font-weight: bold;
+            font-size: 12px;
+            padding-top: 4px;
+        }
         .signature {
-            margin-top: 30px;
-            font-size: 9px;
+            margin-top: 20px;
+        }
+        .signature-row {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .signature-left {
+            text-align: left;
+            vertical-align: top;
+            width: 50%;
+        }
+        .signature-right {
+            text-align: right;
+            vertical-align: top;
+            width: 50%;
         }
         .specification-title {
             font-size: 12px;
@@ -90,9 +114,8 @@
             text-align: center;
         }
         .specification-period {
-            margin: 10px 0;
+            margin: 6px 0;
             text-align: center;
-            font-size: 9px;
         }
         .specification-table {
             width: 100%;
@@ -136,10 +159,11 @@
         </td>
         </tr>
     </table>
+    <div class="header-line"></div>
 
     <div class="client-info">
         @if($bill->entity)
-            <div><strong>{{ $bill->entity->company_name }}</strong></div>
+            <div>{{ $bill->entity->company_name }}</div>
             @if($bill->entity->address)
                 <div>{{ $bill->entity->address }}</div>
             @endif
@@ -161,7 +185,6 @@
     </div>
 
     <div class="contracts">
-        <strong>Račun po pogodba št.</strong>
         @php
             $contractNumbers = [];
             $currentYear = \Carbon\Carbon::now()->format('Y');
@@ -169,7 +192,7 @@
                 $contractNumbers[] = 'U' . $compenzation->id . '/' . $currentYear;
             }
         @endphp
-        <strong>{{ implode(', ', $contractNumbers) }}</strong>
+        Račun po pogodbah št. {{ implode(', ', $contractNumbers) }}
     </div>
 
     @php
@@ -185,26 +208,29 @@
     @endphp
 
     <div class="amount-section">
-        <div class="amount-row">
-            <div class="amount-label">Osnova za DDV</div>
-            <div class="amount-value">{{ number_format($commissionAmount, 2, ',', '.') }} €</div>
-        </div>
-        <div class="amount-row">
-            <div class="amount-label">DDV 22%</div>
-            <div class="amount-value">{{ number_format($commissionDdvAmount, 2, ',', '.') }} €</div>
-        </div>
-        <div class="amount-row amount-total">
-            <div class="amount-label"><strong>SKUPAJ ZA PLAČILO</strong></div>
-            <div class="amount-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }} €</strong></div>
-        </div>
+        <table class="amount-table">
+            <tr>
+                <td class="amount-label">Osnova za DDV</td>
+                <td class="amount-value"><strong>{{ number_format($commissionAmount, 2, ',', '.') }} €</strong></td>
+            </tr>
+            <tr>
+                <td class="amount-label">DDV 22%</td>
+                <td class="amount-value"><strong>{{ number_format($commissionDdvAmount, 2, ',', '.') }} €</strong></td>
+            </tr>
+            <tr class="amount-total">
+                <td class="amount-label"><strong>SKUPAJ ZA PLAČILO</strong></td>
+                <td class="amount-value"><strong>{{ number_format($transferAmount, 2, ',', '.') }} €</strong></td>
+            </tr>
+        </table>
     </div>
 
     <div class="signature">
-        <div>V Ljubljani, {{ \Carbon\Carbon::parse($bill->date)->format('d.m.Y') }}</div>
-        <div style="margin-top: 20px; text-align: right;">
-            <div>Direktor:</div>
-            <div>Matevž Korenjak</div>
-        </div>
+        <table class="signature-row">
+            <tr>
+                <td class="signature-left">V Ljubljani, {{ \Carbon\Carbon::parse($bill->date)->format('d.m.Y') }}</td>
+                <td class="signature-right">Direktor: <br />Matevž Korenjak</td>
+            </tr>
+        </table>
     </div>
 
     <!-- Page 2: Specification -->
@@ -215,13 +241,14 @@
                 <img src="{{ $pdfLogoPath }}" alt="Logo">
             </td>
             <td class="header-text">
-                <div>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</div>
-                <div>Email: matevz.korenjak@kompenzacije.eu</div>
-                <div>Telefon: 031 227 139, Faks: 08 288 00 77</div>
-                <div>SI98789309</div>
+                <p>Matevž Korenjak s.p., Litostrojska cesta 12, 1000 Ljubljana</p>
+                <p>Email: matevz.korenjak@kompenzacije.eu</p>
+                <p>Telefon: 031 227 139, Faks: 08 288 00 77</p>
+                <p>SI98789309</p>
             </td>
             </tr>
         </table>
+        <div class="header-line"></div>
 
         <div class="specification-title">SPECIFIKACIJA UNOVČENIH TERJATEV</div>
         <div class="specification-period">V obdobju {{ \Carbon\Carbon::parse($dateFrom)->format('d.m.Y') }} - {{ \Carbon\Carbon::parse($dateTo)->format('d.m.Y') }}</div>
