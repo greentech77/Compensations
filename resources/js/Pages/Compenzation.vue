@@ -59,6 +59,18 @@
                             </div>
                         </div>
 
+                        <!-- Datum zaključitve (prikaži samo ko je zaključena) -->
+                        <div v-if="formdata.form.finished" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 items-end">
+                            <InputGroup
+                                v-model="formdata.form.date_finished"
+                                label="Datum zaključitve"
+                                type="date"
+                                :error="formdata.form.errors.date_finished"
+                                @change="formdata.form.clearErrors('date_finished')"
+                                :edit="formdata.edit"
+                            />
+                        </div>
+
                         <!-- Diskont + Z DDV + Provizija -->
                         <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-x-6 gap-y-4 items-end">
                             <InputGroup
@@ -234,6 +246,7 @@ export default {
                 amount: this.compenzation.amount ? this.compenzation.amount : null,
                 date: this.compenzation.date ? new Date(this.compenzation.date) : null,
                 date_payed: this.compenzation.date_payed ? new Date(this.compenzation.date_payed) : null,
+                date_finished: this.compenzation.date_finished ? new Date(this.compenzation.date_finished) : null,
                 finished: this.compenzation.finished ? this.booleanFormat(this.compenzation.finished) : false,
                 discount: this.compenzation.implementation_agreement?.discount || null,
                 with_ddv: this.compenzation.implementation_agreement?.with_ddv ? this.booleanFormat(this.compenzation.implementation_agreement.with_ddv) : false,

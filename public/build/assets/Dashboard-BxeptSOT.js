@@ -1,0 +1,1 @@
+import{r as a,o as r,c as t,b as n,f as s,F as c}from"./app-DWe5b8OJ.js";import{_ as d}from"./_plugin-vue_export-helper-DlAUqK2U.js";/* empty css            */const l={};function m(p,e){const o=a("Head");return r(),t(c,null,[n(o,{title:"Nadzorna plošča"}),e[0]||(e[0]=s(" Nadzorna plošča ",-1))],64)}const u=d(l,[["render",m]]);export{u as default};

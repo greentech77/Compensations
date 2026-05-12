@@ -27,7 +27,7 @@ class CompenzationFactory extends Factory
             'amount'        => $this->faker->randomFloat(4, 1000, 10000),
             'vat'           => 22,
             'date'          => $date,
-            'date_finished' => $this->faker->dateTimeBetween($date, $today),
+            'date_finished' => null,
             'date_payed'    => $this->faker->dateTimeBetween($date, $today),
             'storno'        => false,
             'finished'      => false,

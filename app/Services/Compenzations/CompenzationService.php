@@ -98,7 +98,7 @@ class CompenzationService {
             $entities = $data['entities'] ?? null;
             
             // Separate data for different models
-            $compenzationData = Arr::only($data, ['date', 'amount', 'date_payed', 'finished']);
+            $compenzationData = Arr::only($data, ['date', 'amount', 'date_payed', 'date_finished', 'finished']);
             
             // Convert date to proper format if present (date only, not datetime)
             if (isset($compenzationData['date'])) {
@@ -109,10 +109,21 @@ class CompenzationService {
             if (isset($compenzationData['date_payed'])) {
                 $compenzationData['date_payed'] = Carbon::parse($compenzationData['date_payed'])->format('Y-m-d');
             }
+
+            // Convert date_finished to proper format if present
+            if (isset($compenzationData['date_finished'])) {
+                $compenzationData['date_finished'] = Carbon::parse($compenzationData['date_finished'])->format('Y-m-d');
+            }
             
             // Convert finished to boolean if present
             if (isset($compenzationData['finished'])) {
                 $compenzationData['finished'] = (bool)$compenzationData['finished'];
+
+                // Auto-set date_finished to today when marking as finished,
+                // unless date_finished was explicitly provided in the request.
+                if ($compenzationData['finished'] && !isset($compenzationData['date_finished'])) {
+                    $compenzationData['date_finished'] = Carbon::today()->format('Y-m-d');
+                }
             }
             
             // Extract discount, commission, and with_ddv
